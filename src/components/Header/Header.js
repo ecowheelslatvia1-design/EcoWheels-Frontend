@@ -292,7 +292,7 @@ const Header = () => {
                 >
                   About Us
                 </Link>
-                <Link
+                {/* <Link
                   to="/reviews"
                   className={`mobile-nav-link ${
                     isActive("/reviews") ? "active" : ""
@@ -300,7 +300,7 @@ const Header = () => {
                   onClick={handleLinkClick}
                 >
                   Reviews
-                </Link>
+                </Link> */}
                 <Link
                   to="/products"
                   className={`mobile-nav-link ${
@@ -310,7 +310,7 @@ const Header = () => {
                 >
                   Products
                 </Link>
-                <Link
+                {/* <Link
                   to="/blog"
                   className={`mobile-nav-link ${
                     isActive("/blog") ? "active" : ""
@@ -318,7 +318,7 @@ const Header = () => {
                   onClick={handleLinkClick}
                 >
                   Blog
-                </Link>
+                </Link> */}
               </div>
             )}
           </div>
