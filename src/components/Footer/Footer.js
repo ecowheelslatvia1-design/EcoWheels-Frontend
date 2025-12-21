@@ -7,7 +7,11 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-brand">
-          <h2 className="footer-logo">CYCLAB</h2>
+          <img 
+            src={`${process.env.PUBLIC_URL}/images/Gemini_Generated_Image_1r14g51r14g51r14.png`}
+            alt="ECO WHEELS.LV"
+            className="footer-logo"
+          />
         </div>
 
         <div className="footer-info-left">

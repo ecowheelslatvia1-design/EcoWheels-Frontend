@@ -197,7 +197,15 @@ const Home = () => {
     <div className="home">
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-background">
+        <div 
+          className="hero-background"
+          style={{
+            backgroundImage: `url(${process.env.PUBLIC_URL}/images/Gemini_Generated_Image_ee43b5ee43b5ee43.png)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           <div className="hero-decorative-crosses"></div>
         </div>
         <div className="hero-container">

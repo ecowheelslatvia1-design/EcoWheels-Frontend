@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { adminAPI } from "../../services/api";
 import "./AddProduct.css";
 
-const AddProduct = ({ onSuccess }) => {
+const AddProduct = ({ product, onSuccess, onCancel }) => {
+  const isEditing = !!product;
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -23,20 +25,119 @@ const AddProduct = ({ onSuccess }) => {
     },
     features: [],
     inStock: true,
+    quantity: 0,
+    isListed: true,
     variants: [],
     reviews: {
       ratingAverage: 0,
       ratingCount: 0,
     },
     url: "",
-    images: [],
   });
 
+  const [imageFiles, setImageFiles] = useState([]); // Store File objects
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]); // For editing
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [featureInput, setFeatureInput] = useState("");
   const [variantInput, setVariantInput] = useState({ name: "", price: "" });
+
+  // Populate form when editing, reset when creating
+  useEffect(() => {
+    if (product && product._id) {
+      // Editing mode - populate form with product data
+      setFormData({
+        name: product.name || "",
+        description: product.description || "",
+        category: product.category || "Electric Bike",
+        price: {
+          current: product.price?.current !== undefined && product.price?.current !== null 
+            ? String(product.price.current) 
+            : "",
+          original: product.price?.original !== undefined && product.price?.original !== null 
+            ? String(product.price.original) 
+            : "",
+          currency: product.price?.currency || "USD",
+        },
+        specifications: {
+          motorPower: product.specifications?.motorPower || "",
+          batteryCapacity: product.specifications?.batteryCapacity || "",
+          rangeKm: product.specifications?.rangeKm !== undefined && product.specifications?.rangeKm !== null
+            ? String(product.specifications.rangeKm)
+            : "",
+          weightKg: product.specifications?.weightKg !== undefined && product.specifications?.weightKg !== null
+            ? String(product.specifications.weightKg)
+            : "",
+          maxSpeedKmh: product.specifications?.maxSpeedKmh !== undefined && product.specifications?.maxSpeedKmh !== null
+            ? String(product.specifications.maxSpeedKmh)
+            : "",
+          brakes: product.specifications?.brakes || "",
+          foldable: product.specifications?.foldable || false,
+        },
+        features: Array.isArray(product.features) ? [...product.features] : [],
+        inStock: product.inStock !== undefined ? product.inStock : true,
+        quantity: product.quantity !== undefined && product.quantity !== null ? product.quantity : 0,
+        isListed: product.isListed !== undefined ? product.isListed : true,
+        variants: Array.isArray(product.variants) ? [...product.variants] : [],
+        reviews: {
+          ratingAverage: product.reviews?.ratingAverage !== undefined && product.reviews?.ratingAverage !== null
+            ? product.reviews.ratingAverage
+            : 0,
+          ratingCount: product.reviews?.ratingCount !== undefined && product.reviews?.ratingCount !== null
+            ? product.reviews.ratingCount
+            : 0,
+        },
+        url: product.url || "",
+      });
+      
+      // Set images
+      if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+        setExistingImages([...product.images]);
+        setImagePreviews([...product.images]);
+      } else {
+        setExistingImages([]);
+        setImagePreviews([]);
+      }
+      setImageFiles([]);
+      setError("");
+    } else {
+      // Create mode - reset form to defaults
+      setFormData({
+        name: "",
+        description: "",
+        category: "Electric Bike",
+        price: {
+          current: "",
+          original: "",
+          currency: "USD",
+        },
+        specifications: {
+          motorPower: "",
+          batteryCapacity: "",
+          rangeKm: "",
+          weightKg: "",
+          maxSpeedKmh: "",
+          brakes: "",
+          foldable: false,
+        },
+        features: [],
+        inStock: true,
+        quantity: 0,
+        isListed: true,
+        variants: [],
+        reviews: {
+          ratingAverage: 0,
+          ratingCount: 0,
+        },
+        url: "",
+      });
+      setExistingImages([]);
+      setImagePreviews([]);
+      setImageFiles([]);
+      setError("");
+    }
+  }, [product]);
 
   const categories = [
     "Mountain Bike",
@@ -51,11 +152,12 @@ const AddProduct = ({ onSuccess }) => {
     const { name, value, type, checked } = e.target;
     if (name.startsWith("price.")) {
       const priceField = name.split(".")[1];
+      // For price fields, allow empty string (for user input) but validate on submit
       setFormData({
         ...formData,
         price: {
           ...formData.price,
-          [priceField]: value,
+          [priceField]: value, // Keep as string for input, will parse on submit
         },
       });
     } else if (name.startsWith("specifications.")) {
@@ -77,10 +179,16 @@ const AddProduct = ({ onSuccess }) => {
           [reviewField]: value,
         },
       });
-    } else if (name === "inStock") {
+    } else if (name === "inStock" || name === "isListed") {
       setFormData({
         ...formData,
         [name]: checked,
+      });
+    } else if (name === "quantity") {
+      const quantityValue = value === "" ? 0 : parseInt(value);
+      setFormData({
+        ...formData,
+        [name]: isNaN(quantityValue) ? 0 : Math.max(0, quantityValue),
       });
     } else {
       setFormData({
@@ -145,34 +253,35 @@ const AddProduct = ({ onSuccess }) => {
       return;
     }
 
+    // Create previews for display
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...previews]);
 
-    const imagePromises = files.map((file) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(imagePromises).then((base64Images) => {
-      setFormData({
-        ...formData,
-        images: [...formData.images, ...base64Images],
-      });
-    });
+    // Store File objects for upload
+    setImageFiles([...imageFiles, ...files]);
   };
 
   const removeImage = (index) => {
-    URL.revokeObjectURL(imagePreviews[index]);
+    const preview = imagePreviews[index];
+    // Check if it's a blob URL (new image) or existing image URL
+    if (preview && preview.startsWith("blob:")) {
+      URL.revokeObjectURL(preview);
+    }
+    
+    // Determine if this is an existing image or a new one
+    const isExistingImage = index < existingImages.length;
+    
+    if (isExistingImage) {
+      // Remove from existing images
+      setExistingImages(existingImages.filter((_, i) => i !== index));
+    } else {
+      // Remove from new image files (adjust index)
+      const fileIndex = index - existingImages.length;
+      setImageFiles(imageFiles.filter((_, i) => i !== fileIndex));
+    }
+    
+    // Always update previews
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, i) => i !== index),
-    });
   };
 
   const handleSubmit = async (e) => {
@@ -181,80 +290,196 @@ const AddProduct = ({ onSuccess }) => {
     setLoading(true);
 
     try {
-      const productData = {
-        ...formData,
-        price: {
-          current: parseFloat(formData.price.current) || 0,
-          original: formData.price.original
-            ? parseFloat(formData.price.original)
-            : undefined,
-          currency: formData.price.currency,
-        },
-        specifications: {
-          motorPower: formData.specifications.motorPower || undefined,
-          batteryCapacity: formData.specifications.batteryCapacity || undefined,
-          rangeKm: formData.specifications.rangeKm
-            ? parseFloat(formData.specifications.rangeKm)
-            : undefined,
-          weightKg: formData.specifications.weightKg
-            ? parseFloat(formData.specifications.weightKg)
-            : undefined,
-          maxSpeedKmh: formData.specifications.maxSpeedKmh
-            ? parseFloat(formData.specifications.maxSpeedKmh)
-            : undefined,
-          brakes: formData.specifications.brakes || undefined,
-          foldable: formData.specifications.foldable || false,
-        },
-        reviews: {
-          ratingAverage: parseFloat(formData.reviews.ratingAverage) || 0,
-          ratingCount: parseInt(formData.reviews.ratingCount) || 0,
-        },
-      };
+      // Validate required fields
+      if (!formData.name || formData.name.trim() === "") {
+        setError("Product name is required");
+        setLoading(false);
+        return;
+      }
 
-      // Remove undefined values
-      Object.keys(productData.specifications).forEach(
-        (key) =>
-          productData.specifications[key] === undefined && delete productData.specifications[key]
-      );
-      if (!productData.price.original) delete productData.price.original;
+      // Validate price - ensure it's a valid number
+      const currentPriceStr = String(formData.price.current || "").trim();
+      if (!currentPriceStr || currentPriceStr === "") {
+        setError("Current price is required");
+        setLoading(false);
+        return;
+      }
 
-      await adminAPI.createProduct(productData);
-      onSuccess();
-      // Reset form
-      setFormData({
-        name: "",
-        description: "",
-        category: "Electric Bike",
-        price: {
-          current: "",
-          original: "",
-          currency: "USD",
-        },
-        specifications: {
-          motorPower: "",
-          batteryCapacity: "",
-          rangeKm: "",
-          weightKg: "",
-          maxSpeedKmh: "",
-          brakes: "",
-          foldable: false,
-        },
-        features: [],
-        inStock: true,
-        variants: [],
-        reviews: {
-          ratingAverage: 0,
-          ratingCount: 0,
-        },
-        url: "",
-        images: [],
+      const currentPrice = parseFloat(currentPriceStr);
+      if (isNaN(currentPrice) || currentPrice < 0) {
+        setError("Please enter a valid current price (must be 0 or greater)");
+        setLoading(false);
+        return;
+      }
+
+      // Validate images - at least one image is required (either existing or new)
+      if (isEditing) {
+        if (existingImages.length === 0 && imageFiles.length === 0) {
+          setError("At least one product image is required");
+          setLoading(false);
+          return;
+        }
+      } else {
+        if (imageFiles.length === 0) {
+          setError("At least one product image is required");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+
+      // Add text fields
+      formDataToSend.append("name", formData.name.trim());
+      formDataToSend.append("description", (formData.description || "").trim());
+      formDataToSend.append("category", formData.category);
+      
+      // Price handling - ALWAYS send current price as a number
+      formDataToSend.append("price[current]", currentPrice);
+      
+      // Only send original price if it has a valid value
+      const originalPriceStr = String(formData.price.original || "").trim();
+      if (originalPriceStr && originalPriceStr !== "") {
+        const originalPrice = parseFloat(originalPriceStr);
+        if (!isNaN(originalPrice) && originalPrice > 0) {
+          formDataToSend.append("price[original]", originalPrice);
+        }
+      }
+      
+      formDataToSend.append("price[currency]", formData.price.currency || "USD");
+
+      // Add specifications - always send all fields
+      formDataToSend.append("specifications[motorPower]", (formData.specifications.motorPower || "").trim());
+      formDataToSend.append("specifications[batteryCapacity]", (formData.specifications.batteryCapacity || "").trim());
+      formDataToSend.append("specifications[brakes]", (formData.specifications.brakes || "").trim());
+      formDataToSend.append("specifications[foldable]", formData.specifications.foldable ? "true" : "false");
+      
+      // Numeric specification fields - send as numbers if valid, otherwise don't send
+      const rangeKm = parseFloat(formData.specifications.rangeKm);
+      if (!isNaN(rangeKm) && rangeKm >= 0) {
+        formDataToSend.append("specifications[rangeKm]", rangeKm);
+      }
+      
+      const weightKg = parseFloat(formData.specifications.weightKg);
+      if (!isNaN(weightKg) && weightKg >= 0) {
+        formDataToSend.append("specifications[weightKg]", weightKg);
+      }
+      
+      const maxSpeedKmh = parseFloat(formData.specifications.maxSpeedKmh);
+      if (!isNaN(maxSpeedKmh) && maxSpeedKmh >= 0) {
+        formDataToSend.append("specifications[maxSpeedKmh]", maxSpeedKmh);
+      }
+
+      // Add features - always send array (even if empty) to allow clearing during updates
+      if (formData.features && formData.features.length > 0) {
+        formData.features.forEach((feature, index) => {
+          if (feature && feature.trim() !== "") {
+            formDataToSend.append(`features[${index}]`, feature.trim());
+          }
+        });
+      }
+      // If empty array, backend will handle it (no features sent = empty array)
+
+      // Add variants - always send array (even if empty) to allow clearing during updates
+      if (formData.variants && formData.variants.length > 0) {
+        formData.variants.forEach((variant, index) => {
+          if (variant && variant.variantId && variant.name && variant.price !== undefined) {
+            formDataToSend.append(`variants[${index}][variantId]`, variant.variantId);
+            formDataToSend.append(`variants[${index}][name]`, variant.name.trim());
+            const variantPrice = typeof variant.price === 'number' ? variant.price : parseFloat(variant.price);
+            if (!isNaN(variantPrice) && variantPrice >= 0) {
+              formDataToSend.append(`variants[${index}][price]`, variantPrice);
+            }
+          }
+        });
+      }
+      // If empty array, backend will handle it (no variants sent = empty array)
+
+      // Add reviews - ensure valid numbers
+      const ratingAverage = parseFloat(formData.reviews.ratingAverage) || 0;
+      const ratingCount = parseInt(formData.reviews.ratingCount) || 0;
+      formDataToSend.append("reviews[ratingAverage]", Math.max(0, Math.min(5, ratingAverage))); // Clamp between 0-5
+      formDataToSend.append("reviews[ratingCount]", Math.max(0, ratingCount));
+
+      // Stock and listing status
+      formDataToSend.append("inStock", formData.inStock ? "true" : "false");
+      const quantity = parseInt(formData.quantity) || 0;
+      formDataToSend.append("quantity", Math.max(0, quantity));
+      formDataToSend.append("isListed", formData.isListed ? "true" : "false");
+      
+      // URL - always send (even if empty) to allow clearing during updates
+      formDataToSend.append("url", (formData.url || "").trim());
+
+      // Add image files (only new files, existing images are kept on backend)
+      imageFiles.forEach((file) => {
+        formDataToSend.append("images", file);
       });
-      setImagePreviews([]);
-      setFeatureInput("");
-      setVariantInput({ name: "", price: "" });
+
+      // If editing, include existing images that weren't removed
+      if (isEditing) {
+        if (existingImages.length > 0) {
+          existingImages.forEach((imgUrl) => {
+            if (imgUrl && imgUrl.trim() !== "") {
+              formDataToSend.append("existingImages[]", imgUrl);
+            }
+          });
+        }
+        // Note: If all images were removed and no new images added, 
+        // backend will handle it based on existingImages array being empty
+      }
+
+      if (isEditing) {
+        await adminAPI.updateProduct(product._id, formDataToSend);
+      } else {
+        await adminAPI.createProduct(formDataToSend);
+      }
+      
+      onSuccess();
+      
+      // Reset form only if creating new product
+      if (!isEditing) {
+        setFormData({
+          name: "",
+          description: "",
+          category: "Electric Bike",
+          price: {
+            current: "",
+            original: "",
+            currency: "USD",
+          },
+          specifications: {
+            motorPower: "",
+            batteryCapacity: "",
+            rangeKm: "",
+            weightKg: "",
+            maxSpeedKmh: "",
+            brakes: "",
+            foldable: false,
+          },
+          features: [],
+          inStock: true,
+          quantity: 0,
+          isListed: true,
+          variants: [],
+          reviews: {
+            ratingAverage: 0,
+            ratingCount: 0,
+          },
+          url: "",
+        });
+        setImageFiles([]);
+        setImagePreviews([]);
+        setExistingImages([]);
+        setFeatureInput("");
+        setVariantInput({ name: "", price: "" });
+      }
     } catch (err) {
       setError(
-        err.response?.data?.message || "Failed to create product. Please try again."
+        err.response?.data?.message || 
+        (isEditing 
+          ? "Failed to update product. Please try again." 
+          : "Failed to create product. Please try again.")
       );
     } finally {
       setLoading(false);
@@ -263,7 +488,7 @@ const AddProduct = ({ onSuccess }) => {
 
   return (
     <div className="add-product">
-      <h2>Add New Product</h2>
+      <h2>{isEditing ? "Edit Product" : "Add New Product"}</h2>
       <form onSubmit={handleSubmit} className="add-product-form">
         {error && <div className="admin-error">{error}</div>}
 
@@ -565,6 +790,25 @@ const AddProduct = ({ onSuccess }) => {
               placeholder="/products/product-id"
             />
           </div>
+        </div>
+
+        <div className="form-row">
+          <div className="admin-form-group">
+            <label>Stock Quantity *</label>
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleInputChange}
+              min="0"
+              required
+              placeholder="0"
+            />
+            <small style={{ color: "#666", fontSize: "0.85rem", display: "block", marginTop: "0.25rem" }}>
+              Number of items available in stock
+            </small>
+          </div>
+
           <div className="admin-form-group">
             <label className="checkbox-label">
               <input
@@ -575,6 +819,24 @@ const AddProduct = ({ onSuccess }) => {
               />
               In Stock
             </label>
+            <small style={{ color: "#666", fontSize: "0.85rem", display: "block", marginTop: "0.25rem" }}>
+              Automatically updated based on quantity
+            </small>
+          </div>
+
+          <div className="admin-form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="isListed"
+                checked={formData.isListed}
+                onChange={handleInputChange}
+              />
+              List Product
+            </label>
+            <small style={{ color: "#666", fontSize: "0.85rem", display: "block", marginTop: "0.25rem" }}>
+              Show product on website
+            </small>
           </div>
         </div>
 
@@ -607,7 +869,10 @@ const AddProduct = ({ onSuccess }) => {
 
         <div className="form-actions">
           <button type="submit" disabled={loading} className="admin-btn-primary">
-            {loading ? "Creating..." : "Create Product"}
+            {loading 
+              ? (isEditing ? "Updating..." : "Creating...") 
+              : (isEditing ? "Update Product" : "Create Product")
+            }
           </button>
         </div>
       </form>

@@ -49,8 +49,40 @@ export const cartAPI = {
 
 // Admin API
 export const adminAPI = {
-  createProduct: (data) => api.post("/products", data),
-  updateProduct: (id, data) => api.put(`/products/${id}`, data),
+  createProduct: (formData) => {
+    // Use a separate axios instance for FormData to avoid JSON headers
+    const formApi = axios.create({
+      baseURL: API_URL,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    
+    // Add token to request
+    const token = localStorage.getItem("token");
+    if (token) {
+      formApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+    
+    return formApi.post("/products", formData);
+  },
+  updateProduct: (id, formData) => {
+    // Use a separate axios instance for FormData to avoid JSON headers
+    const formApi = axios.create({
+      baseURL: API_URL,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    
+    // Add token to request
+    const token = localStorage.getItem("token");
+    if (token) {
+      formApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+    
+    return formApi.put(`/products/${id}`, formData);
+  },
   deleteProduct: (id) => api.delete(`/products/${id}`),
 };
 

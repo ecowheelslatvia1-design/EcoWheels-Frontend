@@ -131,7 +131,7 @@
 
 .hero-label {
   font-size: 0.875rem;
-  color: #999;
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 1rem;
@@ -158,7 +158,7 @@
 .hero-description {
   font-size: 1.125rem;
   line-height: 1.8;
-  color: #666;
+  color: #ffffff;
   margin-bottom: 2.5rem;
   max-width: 500px;
 }

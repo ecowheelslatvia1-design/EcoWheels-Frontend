@@ -142,10 +142,11 @@ const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <div className="logo-circle">
-            <span className="logo-c">C</span>
-          </div>
-          <span className="logo-text">Quality bicycle</span>
+          <img 
+            src={`${process.env.PUBLIC_URL}/images/Gemini_Generated_Image_1r14g51r14g51r14.png`}
+            alt="ECO WHEELS.LV"
+            className="logo-image"
+          />
         </Link>
 
         <div
