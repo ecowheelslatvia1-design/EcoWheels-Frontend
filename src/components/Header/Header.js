@@ -144,7 +144,7 @@ const Header = () => {
         <Link to="/" className="logo">
           <img 
             src={`${process.env.PUBLIC_URL}/images/Gemini_Generated_Image_1r14g51r14g51r14.png`}
-            alt="ECO WHEELS.LV"
+            alt="ECO WHEELS"
             className="logo-image"
           />
         </Link>

@@ -23,11 +23,19 @@ const About = () => {
           <div className="about-section">
             <h2 className="section-title">Our Story</h2>
             <p className="section-text">
-              Founded with a passion for cycling, we've been dedicated to
-              providing high-quality bicycles and exceptional service to riders
-              of all levels. Our journey began with a simple belief: everyone
-              deserves access to reliable, well-crafted bicycles that enhance
-              their riding experience.
+            Eco Wheels.lv is a modern e-mobility company in Latvia, specializing in the import, distribution, and sale of high-quality electric bicycles and e-bikes. We are proud to be importers and official partners of the Fiido Group, a globally recognised brand known for its innovative, reliable, and stylish electric mobility products.
+At Eco Wheels.lv, we aim to make everyday transportation greener, smarter, and more efficient. Our focus is to offer customers the latest Fiido electric bicycle models along with professional service, expert product guidance, and reliable after-sales support.
+What we offer:
+Official Fiido e-bike models imported directly from the manufacturer
+A complete selection of urban, folding, cargo, and performance e-bikes
+Maintenance, repair, spare parts, and warranty support
+Test rides, product demonstrations, and personalised consultations
+Sustainable mobility solutions for individuals and businesses
+Our mission is to help Latvia transition to cleaner and more convenient transportation options, reducing fuel costs and supporting a healthier environment.
+Eco Wheels.lv – Official Importers of Fiido | Ride Smart. Ride Green. About Us – Eco Wheels Latvia
+Eco Wheels Latvia is an emerging e-bicycle dealership based in Jelgava, dedicated to bringing modern, eco-friendly mobility solutions to the Latvian market. We believe in a cleaner future where daily travel is affordable, efficient, and environmentally responsible.
+As authorized dealers, we provide quality electric bicycles, reliable customer support, and a smooth buying experience. Our goal is to help customers choose the right e-bike for their needs—whether for commuting, leisure, or delivery services.
+We are committed to honesty, transparency, and long-term customer satisfaction. Whether you are buying your first e-bike or expanding your fleet, Eco Wheels Latvia is here to support you every step.
             </p>
             <p className="section-text">
               Over the years, we've built a reputation for excellence, offering

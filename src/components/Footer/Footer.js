@@ -21,7 +21,7 @@ const Footer = () => {
           </div>
           <div className="footer-info-item">
             <h4>EMAIL</h4>
-            <p>hello@wizerdui.com</p>
+            <p>ecowheelslatvia1@gmail.com</p>
           </div>
         </div>
 
