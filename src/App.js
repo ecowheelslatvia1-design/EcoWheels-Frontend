@@ -5,6 +5,7 @@ import { CartProvider } from "./context/CartContext";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import Home from "./pages/Home/Home";
+import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import CartPage from "./pages/CartPage/CartPage";
 import Login from "./pages/Login/Login";
@@ -43,7 +44,7 @@ function App() {
                     <main className="main-content">
                       <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/products" element={<Home />} />
+                        <Route path="/products" element={<Products />} />
                         <Route path="/products/:id" element={<ProductDetail />} />
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/login" element={<Login />} />

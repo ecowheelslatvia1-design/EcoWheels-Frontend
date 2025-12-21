@@ -25,27 +25,49 @@ api.interceptors.request.use(
 
 // Product API
 export const productAPI = {
-  getProducts: (params) => api.get("/products", { params }),
-  getProductById: (id) => api.get(`/products/${id}`),
+  getProducts: (params) => Promise.resolve({ data: {} }),
+  getProductById: (id) => Promise.resolve({ data: {} }),
 };
 
 // User API
 export const userAPI = {
-  register: (data) => api.post("/users/register", data),
-  login: (data) => api.post("/users/login", data),
-  getProfile: () => api.get("/users/profile"),
-  updateProfile: (data) => api.put("/users/profile", data),
+  register: (data) => Promise.resolve({ data: {} }),
+  login: (data) => Promise.resolve({ data: {} }),
+  getProfile: () => Promise.resolve({ data: {} }),
+  updateProfile: (data) => Promise.resolve({ data: {} }),
 };
 
 // Cart API
 export const cartAPI = {
-  getCart: () => api.get("/cart"),
-  addToCart: (data) => api.post("/cart", data),
-  updateCartItem: (itemId, quantity) =>
-    api.put(`/cart/${itemId}`, { quantity }),
-  removeFromCart: (itemId) => api.delete(`/cart/${itemId}`),
-  clearCart: () => api.delete("/cart"),
+  getCart: () => Promise.resolve({ data: {} }),
+  addToCart: (data) => Promise.resolve({ data: {} }),
+  updateCartItem: (itemId, quantity) => Promise.resolve({ data: {} }),
+  removeFromCart: (itemId) => Promise.resolve({ data: {} }),
+  clearCart: () => Promise.resolve({ data: {} }),
 };
+
+// export const productAPI = {
+//   getProducts: (params) => api.get("/products", { params }),
+//   getProductById: (id) => api.get(`/products/${id}`),
+// };
+
+// // User API
+// export const userAPI = {
+//   register: (data) => api.post("/users/register", data),
+//   login: (data) => api.post("/users/login", data),
+//   getProfile: () => api.get("/users/profile"),
+//   updateProfile: (data) => api.put("/users/profile", data),
+// };
+
+// // Cart API
+// export const cartAPI = {
+//   getCart: () => api.get("/cart"),
+//   addToCart: (data) => api.post("/cart", data),
+//   updateCartItem: (itemId, quantity) =>
+//     api.put(`/cart/${itemId}`, { quantity }),
+//   removeFromCart: (itemId) => api.delete(`/cart/${itemId}`),
+//   clearCart: () => api.delete("/cart"),
+// };
 
 // Admin API
 export const adminAPI = {

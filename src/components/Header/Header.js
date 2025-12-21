@@ -209,7 +209,7 @@ const Header = () => {
         </div>
 
         <div className="header-actions">
-          {user ? (
+          {/* {user ? (
             <Link to="/" className="sign-in-btn" onClick={handleLogout}>
               <svg
                 width="20"
@@ -241,9 +241,9 @@ const Header = () => {
               </svg>
               Sign in
             </Link>
-          )}
+          )} */}
 
-          <Link to="/cart" className="cart-link">
+          {/* <Link to="/cart" className="cart-link">
             <svg
               width="24"
               height="24"
@@ -261,7 +261,7 @@ const Header = () => {
               />
             </svg>
             <span className="cart-badge">{cartItemCount || 0}</span>
-          </Link>
+          </Link> */}
 
           <div className="menu-toggle-wrapper" ref={navWrapperRef}>
             <button

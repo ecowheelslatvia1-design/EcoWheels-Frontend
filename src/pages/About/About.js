@@ -4,7 +4,12 @@ import "./About.css";
 const About = () => {
   return (
     <div className="about-page">
-      <section className="about-hero">
+      <section 
+        className="about-hero"
+        style={{
+          backgroundImage: `url(${process.env.PUBLIC_URL}/images/c11pro-6-pc.png)`,
+        }}
+      >
         <div className="about-hero-content">
           <h1 className="about-title">About Us</h1>
           <p className="about-subtitle">

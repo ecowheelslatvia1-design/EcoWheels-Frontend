@@ -4,13 +4,30 @@
 }
 
 .about-hero {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  position: relative;
   color: #fff;
   padding: 8rem 2rem 6rem;
   text-align: center;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.about-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 0;
 }
 
 .about-hero-content {
+  position: relative;
+  z-index: 1;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -20,6 +37,11 @@
   font-weight: 900;
   margin-bottom: 1rem;
   letter-spacing: -2px;
+  background: linear-gradient(135deg, #ff6b35 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .about-subtitle {
