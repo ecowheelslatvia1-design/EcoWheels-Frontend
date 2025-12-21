@@ -55,7 +55,7 @@ const Footer = () => {
               </svg>
             </a> */}
             <a
-              href="https://www.instagram.com/eco_wheels.lv/"
+              href="https://www.instagram.com/eco_wheelslatvia/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
