@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useNavigate, Link } from "react-router-dom";
 import { productAPI } from "../../services/api";
-import ProductCard from "../ProductCard/ProductCard";
+import ProductCard from "../Products/ProductCard";
 import Loading from "../Loading/Loading";
 import Message from "../Message/Message";
 import "./ProductDetails.css";
@@ -10,11 +11,27 @@ import "./ProductDetails.css";
 const ProductDetails = ({ product, loading }) => {
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    features: false,
+    specifications: false,
+  });
+  const thumbnailContainerRef = useRef(null);
+
+  const scrollThumbnails = (direction) => {
+    if (thumbnailContainerRef.current) {
+      const scrollAmount = 100; // Scroll by 100px
+      thumbnailContainerRef.current.scrollBy({
+        top: direction === 'up' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Move useEffect before any early returns
   useEffect(() => {
@@ -80,8 +97,56 @@ const ProductDetails = ({ product, loading }) => {
     setQuantity(value);
   };
 
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const hasSpecifications = () => {
+    if (!product.specifications) return false;
+    
+    const hasDetails = product.specifications.details && (
+      product.specifications.details.modelName ||
+      product.specifications.details.modelNumber ||
+      product.specifications.details.NetWeight ||
+      product.specifications.details.Payload
+    );
+    
+    const hasESystem = product.specifications["E-System"] && (
+      product.specifications["E-System"].driveUnit ||
+      product.specifications["E-System"].battery ||
+      product.specifications["E-System"].charger ||
+      product.specifications["E-System"].display ||
+      product.specifications["E-System"].throttle
+    );
+    
+    const hasFrameType = product.specifications.frameType;
+    
+    return hasDetails || hasESystem || hasFrameType;
+  };
+
+  const handleBuyNow = () => {
+    const productName = encodeURIComponent(product.name);
+    const productPrice = product.price?.current?.toFixed(2) || "0.00";
+    const message = encodeURIComponent(
+      `Hello! I'm interested in purchasing:\n\n` +
+      `Product: ${product.name}\n` +
+      `Quantity: ${quantity}\n` +
+      `Price: $${productPrice}\n\n` +
+      `Please let me know how to proceed with the purchase.`
+    );
+    const whatsappUrl = `https://wa.me/37126308147?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const hasSale =
     product.price?.original && product.price.original > product.price?.current;
+  
+  const discountAmount = hasSale
+    ? Math.round(product.price.original - product.price.current)
+    : 0;
 
   return (
     <div className="product-details">
@@ -91,8 +156,56 @@ const ProductDetails = ({ product, loading }) => {
         </Message>
       )}
 
+      <nav className="breadcrumb-navigation">
+        <Link to="/" className="breadcrumb-link">Home</Link>
+        <span className="breadcrumb-separator">/</span>
+        <Link to="/products" className="breadcrumb-link">Products</Link>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-current">{product.name}</span>
+      </nav>
+
       <div className="product-details-container">
         <div className="product-images">
+          {product.images && product.images.length > 1 && (
+            <div className="thumbnail-container-wrapper">
+              {product.images.length >= 4 && (
+                <button
+                  className="thumbnail-scroll-btn thumbnail-scroll-up"
+                  onClick={() => scrollThumbnails('up')}
+                  aria-label="Scroll thumbnails up"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 10L8 6L12 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+              <div 
+                className="thumbnail-images-vertical"
+                ref={thumbnailContainerRef}
+              >
+                {product.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`${product.name} ${index + 1}`}
+                    className={selectedImage === index ? "active" : ""}
+                    onClick={() => setSelectedImage(index)}
+                  />
+                ))}
+              </div>
+              {product.images.length >= 4 && (
+                <button
+                  className="thumbnail-scroll-btn thumbnail-scroll-down"
+                  onClick={() => scrollThumbnails('down')}
+                  aria-label="Scroll thumbnails down"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
           <div className="main-image">
             {product.images && product.images.length > 0 ? (
               <img src={product.images[selectedImage]} alt={product.name} />
@@ -100,173 +213,196 @@ const ProductDetails = ({ product, loading }) => {
               <div className="no-image">No Image</div>
             )}
           </div>
-          {product.images && product.images.length > 1 && (
-            <div className="thumbnail-images">
-              {product.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt={`${product.name} ${index + 1}`}
-                  className={selectedImage === index ? "active" : ""}
-                  onClick={() => setSelectedImage(index)}
-                />
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="product-info-details">
           <h1>{product.name}</h1>
+          
+          {product.reviews && product.reviews.ratingCount > 0 && (
+            <div className="product-rating-section">
+              <div className="rating-stars">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const rating = product.reviews.ratingAverage || 0;
+                  if (i < Math.floor(rating)) {
+                    return <span key={i} className="star filled">★</span>;
+                  } else if (i === Math.floor(rating) && rating % 1 >= 0.5) {
+                    return <span key={i} className="star half">★</span>;
+                  } else {
+                    return <span key={i} className="star empty">★</span>;
+                  }
+                })}
+              </div>
+              <span className="rating-text">
+                {product.reviews.ratingCount} reviews
+              </span>
+            </div>
+          )}
+
           {product.description && (
             <p className="product-description-text">{product.description}</p>
           )}
 
-          {product.reviews && product.reviews.ratingCount > 0 && (
-            <div className="product-rating-section">
-              <div className="rating-stars">
-                {"⭐".repeat(Math.round(product.reviews.ratingAverage))}
-              </div>
-              <span className="rating-text">
-                {product.reviews.ratingAverage.toFixed(1)} ({product.reviews.ratingCount} reviews)
-              </span>
-            </div>
-          )}
-
-          <div className="product-info-label">
-            <h5>Specifications:</h5>
-          </div>
-
-          <div className="product-specs-grid">
-            {product.specifications?.motorPower && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.motorPower}</h3>
-                <div className="spec-label">MOTOR POWER</div>
-              </div>
-            )}
-            {product.specifications?.batteryCapacity && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.batteryCapacity}</h3>
-                <div className="spec-label">BATTERY CAPACITY</div>
-              </div>
-            )}
-            {product.specifications?.rangeKm && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.rangeKm} km</h3>
-                <div className="spec-label">RANGE</div>
-              </div>
-            )}
-            {product.specifications?.maxSpeedKmh && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.maxSpeedKmh} km/h</h3>
-                <div className="spec-label">MAX SPEED</div>
-              </div>
-            )}
-            {product.specifications?.brakes && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.brakes}</h3>
-                <div className="spec-label">BRAKES</div>
-              </div>
-            )}
-            {product.specifications?.weightKg && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.weightKg} kg</h3>
-                <div className="spec-label">WEIGHT</div>
-              </div>
-            )}
-            {product.specifications?.foldable !== undefined && (
-              <div className="spec-box">
-                <h3 className="spec-value">{product.specifications.foldable ? "Yes" : "No"}</h3>
-                <div className="spec-label">FOLDABLE</div>
-              </div>
-            )}
-          </div>
-
-          {product.features && product.features.length > 0 && (
-            <div className="product-features-section">
-              <h5 className="features-label">Features:</h5>
-              <ul className="features-list">
-                {product.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {product.features && product.features.length > 0 && (
-            <div className="product-features-section">
-              <h5 className="features-label">Features:</h5>
-              <ul className="features-list">
-                {product.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           <div className="product-price-wrapper-detail">
-            {hasSale ? (
-              <>
-                <span className="product-price-detail-sale">
-                  ${product.price.current.toFixed(2)}
+            <div className="price-section">
+              {hasSale ? (
+                <>
+                  <span className="product-price-detail-sale">
+                    ${product.price.current.toFixed(2)}
+                  </span>
+                  <span className="product-price-detail-original" style={{ textDecoration: 'line-through' }}>
+                    ${product.price.original.toFixed(2)}
+                  </span>
+                  {discountAmount > 0 && (
+                    <span className="savings-text">Save ${discountAmount.toFixed(2)}</span>
+                  )}
+                </>
+              ) : (
+                <span className="product-price-detail">
+                  ${product.price?.current?.toFixed(2) || "0.00"}
                 </span>
-                <span className="product-price-detail-original">
-                  ${product.price.original.toFixed(2)}
-                </span>
-              </>
-            ) : (
-              <span className="product-price-detail">
-                ${product.price?.current?.toFixed(2) || "0.00"}
-              </span>
-            )}
+              )}
+            </div>
           </div>
 
-          {product.variants && product.variants.length > 0 && (
-            <div className="product-variants-section">
-              <h5 className="variants-label">Variants:</h5>
-              <div className="variants-list">
-                {product.variants.map((variant, index) => (
-                  <div key={index} className="variant-item">
-                    <span>{variant.name}</span>
-                    <span>${variant.price.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
+          {!product.inStock && (
+            <div className="preorder-note">
+              <strong>Note:</strong>
+              <p>PREORDER: This item will be dispatched when available.</p>
+              <a href="#" onClick={(e) => e.preventDefault()}>Notify me when in stock</a>
             </div>
           )}
 
-          <button
-            className="add-to-cart-btn"
-            onClick={handleAddToCart}
-            disabled={!product.inStock}
-          >
-            {product.inStock ? "Add to cart" : "Out of Stock"}
-          </button>
+          <div className="product-actions-buttons">
+            {/* <button
+              className="add-to-cart-btn"
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+            >
+              ADD TO CART
+            </button> */}
+            <button
+              className="buy-now-btn"
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+            >
+              BUY NOW
+            </button>
+          </div>
 
-          <div className="share-section">
-            <h6 className="share-label">Share:</h6>
-            <div className="share-buttons">
-              <a
-                href="#"
-                className="share-btn"
-                onClick={(e) => e.preventDefault()}
+          <div className="expandable-sections">
+            {product.features && product.features.length > 0 && (
+              <div className="expandable-section">
+                <button
+                  className="expandable-header"
+                  onClick={() => toggleSection("features")}
+                >
+                  <span>Features at a Glance</span>
+                  <span className={`expand-icon ${expandedSections.features ? "expanded" : ""}`}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </button>
+                {expandedSections.features && (
+                  <div className="expandable-content">
+                    <ul className="features-list">
+                      {product.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {hasSpecifications() && (
+            <div className="expandable-section">
+              <button
+                className="expandable-header"
+                onClick={() => toggleSection("specifications")}
               >
-                Facebook
-              </a>
-              <a
-                href="#"
-                className="share-btn"
-                onClick={(e) => e.preventDefault()}
-              >
-                Twitter
-              </a>
-              <a
-                href="#"
-                className="share-btn"
-                onClick={(e) => e.preventDefault()}
-              >
-                Youtube
-              </a>
+                <span>Specifications</span>
+                <span className={`expand-icon ${expandedSections.specifications ? "expanded" : ""}`}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              {expandedSections.specifications && (
+                <div className="expandable-content">
+                  <div className="specifications-detail">
+                    {product.specifications && (
+                      <>
+                        {product.specifications.details && (
+                          <div className="spec-group">
+                            <h4>Details</h4>
+                            {product.specifications.details.modelName && (
+                              <div className="spec-item">
+                                <strong>Model Name:</strong> {product.specifications.details.modelName}
+                              </div>
+                            )}
+                            {product.specifications.details.modelNumber && (
+                              <div className="spec-item">
+                                <strong>Model Number:</strong> {product.specifications.details.modelNumber}
+                              </div>
+                            )}
+                            {product.specifications.details.NetWeight && (
+                              <div className="spec-item">
+                                <strong>Net Weight:</strong> {product.specifications.details.NetWeight}
+                              </div>
+                            )}
+                            {product.specifications.details.Payload && (
+                              <div className="spec-item">
+                                <strong>Payload:</strong> {product.specifications.details.Payload}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {product.specifications["E-System"] && (
+                          <div className="spec-group">
+                            <h4>E-System</h4>
+                            {product.specifications["E-System"].driveUnit && (
+                              <div className="spec-item">
+                                <strong>Drive Unit:</strong> {product.specifications["E-System"].driveUnit}
+                              </div>
+                            )}
+                            {product.specifications["E-System"].battery && (
+                              <div className="spec-item">
+                                <strong>Battery:</strong> {product.specifications["E-System"].battery}
+                              </div>
+                            )}
+                            {product.specifications["E-System"].charger && (
+                              <div className="spec-item">
+                                <strong>Charger:</strong> {product.specifications["E-System"].charger}
+                              </div>
+                            )}
+                            {product.specifications["E-System"].display && (
+                              <div className="spec-item">
+                                <strong>Display:</strong> {product.specifications["E-System"].display}
+                              </div>
+                            )}
+                            {product.specifications["E-System"].throttle && (
+                              <div className="spec-item">
+                                <strong>Throttle:</strong> {product.specifications["E-System"].throttle}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {product.specifications.frameType && (
+                          <div className="spec-group">
+                            <h4>Frame Type</h4>
+                            <div className="spec-item">
+                              <strong>Frame Type:</strong> {product.specifications.frameType}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
+            )}
           </div>
         </div>
       </div>

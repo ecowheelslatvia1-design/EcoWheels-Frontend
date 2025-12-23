@@ -9,15 +9,19 @@ const ProductCard = ({ product }) => {
   const hasDiscount = product.discountAmount && product.discountAmount > 0;
   const hasOriginalPrice = product.price?.original && product.price.original > product.price?.current;
   const discountAmount = hasDiscount 
-    ? product.discountAmount 
+    ? Math.round(product.discountAmount)
     : hasOriginalPrice 
-      ? product.price.original - product.price.current 
+      ? Math.round(product.price.original - product.price.current)
       : 0;
+
+  const handleCardClick = () => {
+    navigate(`/products/${product._id}`);
+  };
 
   const handleBuyNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(product.url || `/products/${product._id}`);
+    navigate(`/products/${product._id}`);
   };
 
   const handleCompareChange = (e) => {
@@ -46,7 +50,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="product-card-new">
+    <div className="product-card-new" onClick={handleCardClick}>
       <div className="product-image-container">
         {product.images && product.images.length > 0 && (
           <img src={product.images[0]} alt={product.name} className="product-image-new" />
@@ -60,8 +64,10 @@ const ProductCard = ({ product }) => {
       
       <div className="product-info-new">
         <h3 className="product-name-new">{product.name}</h3>
-        {product.tagline && (
-          <p className="product-tagline">{product.tagline}</p>
+        {(product.description || product.tagline) && (
+          <p className="product-description">
+            {product.description || product.tagline}
+          </p>
         )}
         
         <div className="product-price-section">
@@ -80,31 +86,18 @@ const ProductCard = ({ product }) => {
             <div className="stars-container">
               {renderStars(product.reviews.ratingAverage || 0)}
             </div>
-            <span className="reviews-count">({product.reviews.ratingCount} reviews)</span>
+            <span className="reviews-count">{product.reviews.ratingCount} reviews</span>
           </div>
         )}
 
         {product.features && product.features.length > 0 && (
-          <ul className="product-features">
+          <div className="product-features-grid">
             {product.features.slice(0, 4).map((feature, index) => (
-              <li key={index}>{feature}</li>
+              <div key={index} className="feature-item">{feature}</div>
             ))}
-          </ul>
+          </div>
         )}
 
-        <div className="product-actions">
-          <label className="compare-checkbox">
-            <input
-              type="checkbox"
-              checked={compareChecked}
-              onChange={handleCompareChange}
-            />
-            <span>Add to compare</span>
-          </label>
-          <button className="buy-now-btn" onClick={handleBuyNow}>
-            Buy Now
-          </button>
-        </div>
       </div>
     </div>
   );

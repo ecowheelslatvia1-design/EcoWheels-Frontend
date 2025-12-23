@@ -14,7 +14,12 @@ const Products = () => {
   
   // Filter states
   const [filters, setFilters] = useState({
+    inStock: [],
     category: "",
+    style: "",
+    ridingStyles: [],
+    frameType: [],
+    poster: [],
     drivetrain: [],
     electricAssistRange: [],
     payload: [],
@@ -33,7 +38,12 @@ const Products = () => {
 
   const calculateActiveFilters = () => {
     let count = 0;
+    if (filters.inStock.length > 0) count++;
     if (filters.category) count++;
+    if (filters.style) count++;
+    if (filters.ridingStyles.length > 0) count++;
+    if (filters.frameType.length > 0) count++;
+    if (filters.poster.length > 0) count++;
     if (filters.drivetrain.length > 0) count++;
     if (filters.electricAssistRange.length > 0) count++;
     if (filters.payload.length > 0) count++;
@@ -57,16 +67,28 @@ const Products = () => {
         sort: sortBy,
       };
 
+      if (filters.inStock.length > 0) {
+        // If both true and false are selected, don't filter (show all)
+        // If only one is selected, filter by that value
+        if (filters.inStock.length === 1) {
+          params.inStock = filters.inStock[0];
+        }
+        // If both are selected, don't add the param (show all products)
+      }
       if (filters.category) params.category = filters.category;
-      if (filters.drivetrain.length > 0) params.drivetrain = filters.drivetrain[0];
-      if (filters.electricAssistRange.length > 0) params.electricAssistRange = filters.electricAssistRange[0];
+      if (filters.style) params.style = filters.style;
+      if (filters.ridingStyles.length > 0) params.ridingStyles = filters.ridingStyles;
+      if (filters.frameType.length > 0) params.frameType = filters.frameType;
+      if (filters.poster.length > 0) params.poster = filters.poster;
+      if (filters.drivetrain.length > 0) params.drivetrain = filters.drivetrain;
+      if (filters.electricAssistRange.length > 0) params.electricAssistRange = filters.electricAssistRange;
       if (filters.payload.length > 0) {
         // Get the highest payload value selected
         const payloadValues = filters.payload.map(p => parseInt(p.replace('lbs', '')));
         params.payload = Math.max(...payloadValues);
       }
       if (filters.riderHeight.length > 0) params.riderHeight = filters.riderHeight;
-      if (filters.suspension.length > 0) params.suspension = filters.suspension[0];
+      if (filters.suspension.length > 0) params.suspension = filters.suspension;
       if (filters.colors.length > 0) params.colors = filters.colors;
       if (filters.priceMin !== 499) params.priceMin = filters.priceMin;
       if (filters.priceMax !== 1799) params.priceMax = filters.priceMax;
@@ -87,9 +109,11 @@ const Products = () => {
     setFilters((prev) => {
       const newFilters = { ...prev };
       
-      if (filterType === "category") {
-        newFilters.category = value;
+      if (filterType === "category" || filterType === "style") {
+        // Single value filters - toggle on/off
+        newFilters[filterType] = newFilters[filterType] === value ? "" : value;
       } else if (Array.isArray(newFilters[filterType])) {
+        // Array filters - add/remove value
         const currentValues = newFilters[filterType];
         if (currentValues.includes(value)) {
           newFilters[filterType] = currentValues.filter((v) => v !== value);
@@ -107,7 +131,12 @@ const Products = () => {
 
   const clearFilters = () => {
     setFilters({
+      inStock: [],
       category: "",
+      style: "",
+      ridingStyles: [],
+      frameType: [],
+      poster: [],
       drivetrain: [],
       electricAssistRange: [],
       payload: [],
@@ -124,15 +153,6 @@ const Products = () => {
     setSortBy(newSort);
     setCurrentPage(1);
   };
-  if(products.length === 0) {
-    return <div className="products-page-container">
-      <div className="products-layout">
-        <div className="products-main-content">
-          <div className="no-products-message">We are updating our products, please check back later.</div>
-        </div>
-      </div>
-    </div>
-  }
 
   return (
     <div className="products-page-container">

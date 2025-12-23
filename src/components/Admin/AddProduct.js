@@ -15,24 +15,71 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
       currency: "USD",
     },
     specifications: {
-      motorPower: "",
-      batteryCapacity: "",
-      rangeKm: "",
-      weightKg: "",
-      maxSpeedKmh: "",
-      brakes: "",
-      foldable: false,
+      details: {
+        modelName: "",
+        modelNumber: "",
+        NetWeight: "",
+        Payload: "",
+      },
+      FrameSet: {
+        Frame: "",
+        Fork: "",
+        Headset: "",
+      },
+      "E-System": {
+        driveUnit: "",
+        battery: "",
+        charger: "",
+        display: "",
+        throttle: "",
+      },
+      DRIVETRAIN: {
+        "Rear Derailleur": "",
+        Shifters: "",
+        Chain: "",
+        Crank: "",
+        "Rear Cogs": "",
+        Sensor: "",
+      },
+      BRAKES: {
+        Brakes: "",
+        "Brake Levers": "",
+      },
+      Wheels: {
+        "Front Hub": "",
+        "Rear Hub": "",
+        Tires: "",
+        Rims: "",
+        Spokes: "",
+      },
+      Components: {
+        Handlebars: "",
+        Stem: "",
+        Grips: "",
+        Saddle: "",
+        Seatpost: "",
+      },
+      frameType: "",
     },
+    // Filter fields
+    style: "",
+    poster: "",
+    drivetrain: "",
+    electricAssistRange: "",
+    payload: "",
+    riderHeight: [],
+    suspension: "",
+    colors: [],
+    weight: "",
+    tagline: "",
     features: [],
     inStock: true,
     quantity: 0,
     isListed: true,
-    variants: [],
     reviews: {
       ratingAverage: 0,
       ratingCount: 0,
     },
-    url: "",
   });
 
   const [imageFiles, setImageFiles] = useState([]); // Store File objects
@@ -41,7 +88,8 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [featureInput, setFeatureInput] = useState("");
-  const [variantInput, setVariantInput] = useState({ name: "", price: "" });
+  const [riderHeightInput, setRiderHeightInput] = useState("");
+  const [colorInput, setColorInput] = useState({ name: "", quantity: "" });
 
   // Populate form when editing, reset when creating
   useEffect(() => {
@@ -61,25 +109,75 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
           currency: product.price?.currency || "USD",
         },
         specifications: {
-          motorPower: product.specifications?.motorPower || "",
-          batteryCapacity: product.specifications?.batteryCapacity || "",
-          rangeKm: product.specifications?.rangeKm !== undefined && product.specifications?.rangeKm !== null
-            ? String(product.specifications.rangeKm)
-            : "",
-          weightKg: product.specifications?.weightKg !== undefined && product.specifications?.weightKg !== null
-            ? String(product.specifications.weightKg)
-            : "",
-          maxSpeedKmh: product.specifications?.maxSpeedKmh !== undefined && product.specifications?.maxSpeedKmh !== null
-            ? String(product.specifications.maxSpeedKmh)
-            : "",
-          brakes: product.specifications?.brakes || "",
-          foldable: product.specifications?.foldable || false,
+          details: {
+            modelName: product.specifications?.details?.modelName || "",
+            modelNumber: product.specifications?.details?.modelNumber || "",
+            NetWeight: product.specifications?.details?.NetWeight !== undefined && product.specifications?.details?.NetWeight !== null
+              ? String(product.specifications.details.NetWeight)
+              : "",
+            Payload: product.specifications?.details?.Payload !== undefined && product.specifications?.details?.Payload !== null
+              ? String(product.specifications.details.Payload)
+              : "",
+          },
+          FrameSet: {
+            Frame: product.specifications?.FrameSet?.Frame || "",
+            Fork: product.specifications?.FrameSet?.Fork || "",
+            Headset: product.specifications?.FrameSet?.Headset || "",
+          },
+          "E-System": {
+            driveUnit: product.specifications?.["E-System"]?.driveUnit || "",
+            battery: product.specifications?.["E-System"]?.battery || "",
+            charger: product.specifications?.["E-System"]?.charger || "",
+            display: product.specifications?.["E-System"]?.display || "",
+            throttle: product.specifications?.["E-System"]?.throttle || "",
+          },
+          DRIVETRAIN: {
+            "Rear Derailleur": product.specifications?.DRIVETRAIN?.["Rear Derailleur"] || "",
+            Shifters: product.specifications?.DRIVETRAIN?.Shifters || "",
+            Chain: product.specifications?.DRIVETRAIN?.Chain || "",
+            Crank: product.specifications?.DRIVETRAIN?.Crank || "",
+            "Rear Cogs": product.specifications?.DRIVETRAIN?.["Rear Cogs"] || "",
+            Sensor: product.specifications?.DRIVETRAIN?.Sensor || "",
+          },
+          BRAKES: {
+            Brakes: product.specifications?.BRAKES?.Brakes || "",
+            "Brake Levers": product.specifications?.BRAKES?.["Brake Levers"] || "",
+          },
+          Wheels: {
+            "Front Hub": product.specifications?.Wheels?.["Front Hub"] || "",
+            "Rear Hub": product.specifications?.Wheels?.["Rear Hub"] || "",
+            Tires: product.specifications?.Wheels?.Tires || "",
+            Rims: product.specifications?.Wheels?.Rims || "",
+            Spokes: product.specifications?.Wheels?.Spokes || "",
+          },
+          Components: {
+            Handlebars: product.specifications?.Components?.Handlebars || "",
+            Stem: product.specifications?.Components?.Stem || "",
+            Grips: product.specifications?.Components?.Grips || "",
+            Saddle: product.specifications?.Components?.Saddle || "",
+            Seatpost: product.specifications?.Components?.Seatpost || "",
+          },
+          frameType: product.specifications?.frameType || "",
         },
+        // Filter fields
+        style: product.style || "",
+        poster: product.poster || "",
+        drivetrain: product.drivetrain || "",
+        electricAssistRange: product.electricAssistRange || "",
+        payload: product.payload !== undefined && product.payload !== null ? String(product.payload) : "",
+        riderHeight: Array.isArray(product.riderHeight) ? [...product.riderHeight] : [],
+        suspension: product.suspension || "",
+        colors: Array.isArray(product.colors) 
+          ? product.colors.map(c => typeof c === 'string' 
+              ? { name: c, quantity: 0 } 
+              : { name: c.name || c, quantity: c.quantity || 0 })
+          : [],
+        weight: product.weight !== undefined && product.weight !== null ? String(product.weight) : "",
+        tagline: product.tagline || "",
         features: Array.isArray(product.features) ? [...product.features] : [],
         inStock: product.inStock !== undefined ? product.inStock : true,
         quantity: product.quantity !== undefined && product.quantity !== null ? product.quantity : 0,
         isListed: product.isListed !== undefined ? product.isListed : true,
-        variants: Array.isArray(product.variants) ? [...product.variants] : [],
         reviews: {
           ratingAverage: product.reviews?.ratingAverage !== undefined && product.reviews?.ratingAverage !== null
             ? product.reviews.ratingAverage
@@ -88,7 +186,6 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
             ? product.reviews.ratingCount
             : 0,
         },
-        url: product.url || "",
       });
       
       // Set images
@@ -113,24 +210,71 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
           currency: "USD",
         },
         specifications: {
-          motorPower: "",
-          batteryCapacity: "",
-          rangeKm: "",
-          weightKg: "",
-          maxSpeedKmh: "",
-          brakes: "",
-          foldable: false,
+          details: {
+            modelName: "",
+            modelNumber: "",
+            NetWeight: "",
+            Payload: "",
+          },
+          FrameSet: {
+            Frame: "",
+            Fork: "",
+            Headset: "",
+          },
+          "E-System": {
+            driveUnit: "",
+            battery: "",
+            charger: "",
+            display: "",
+            throttle: "",
+          },
+          DRIVETRAIN: {
+            "Rear Derailleur": "",
+            Shifters: "",
+            Chain: "",
+            Crank: "",
+            "Rear Cogs": "",
+            Sensor: "",
+          },
+          BRAKES: {
+            Brakes: "",
+            "Brake Levers": "",
+          },
+          Wheels: {
+            "Front Hub": "",
+            "Rear Hub": "",
+            Tires: "",
+            Rims: "",
+            Spokes: "",
+          },
+          Components: {
+            Handlebars: "",
+            Stem: "",
+            Grips: "",
+            Saddle: "",
+            Seatpost: "",
+          },
+          frameType: "",
         },
+        // Filter fields
+        style: "",
+        poster: "",
+        drivetrain: "",
+        electricAssistRange: "",
+        payload: "",
+        riderHeight: [],
+        suspension: "",
+        colors: [],
+        weight: "",
+        tagline: "",
         features: [],
         inStock: true,
         quantity: 0,
         isListed: true,
-        variants: [],
         reviews: {
           ratingAverage: 0,
           ratingCount: 0,
         },
-        url: "",
       });
       setExistingImages([]);
       setImagePreviews([]);
@@ -161,15 +305,32 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
         },
       });
     } else if (name.startsWith("specifications.")) {
-      const specName = name.split(".")[1];
-      const specValue = specName === "foldable" ? checked : value;
-      setFormData({
-        ...formData,
-        specifications: {
-          ...formData.specifications,
-          [specName]: specValue,
-        },
-      });
+      const parts = name.split(".");
+      if (parts.length === 2) {
+        // Direct specification field (e.g., specifications.frameType)
+        const specName = parts[1];
+        setFormData({
+          ...formData,
+          specifications: {
+            ...formData.specifications,
+            [specName]: value,
+          },
+        });
+      } else if (parts.length === 3) {
+        // Nested specification field (e.g., specifications.details.modelName)
+        const section = parts[1];
+        const field = parts[2];
+        setFormData({
+          ...formData,
+          specifications: {
+            ...formData.specifications,
+            [section]: {
+              ...formData.specifications[section],
+              [field]: value,
+            },
+          },
+        });
+      }
     } else if (name.startsWith("reviews.")) {
       const reviewField = name.split(".")[1];
       setFormData({
@@ -215,27 +376,41 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
     });
   };
 
-  const handleAddVariant = () => {
-    if (variantInput.name.trim() && variantInput.price) {
+  const handleAddRiderHeight = () => {
+    if (riderHeightInput.trim()) {
       setFormData({
         ...formData,
-        variants: [
-          ...formData.variants,
-          {
-            variantId: Date.now().toString(),
-            name: variantInput.name.trim(),
-            price: parseFloat(variantInput.price),
-          },
-        ],
+        riderHeight: [...formData.riderHeight, riderHeightInput.trim()],
       });
-      setVariantInput({ name: "", price: "" });
+      setRiderHeightInput("");
     }
   };
 
-  const handleRemoveVariant = (index) => {
+  const handleRemoveRiderHeight = (index) => {
     setFormData({
       ...formData,
-      variants: formData.variants.filter((_, i) => i !== index),
+      riderHeight: formData.riderHeight.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleAddColor = () => {
+    if (colorInput.name && colorInput.name.trim()) {
+      const quantity = colorInput.quantity ? parseInt(colorInput.quantity) : 0;
+      setFormData({
+        ...formData,
+        colors: [...formData.colors, { 
+          name: colorInput.name.trim(), 
+          quantity: isNaN(quantity) ? 0 : Math.max(0, quantity) 
+        }],
+      });
+      setColorInput({ name: "", quantity: "" });
+    }
+  };
+
+  const handleRemoveColor = (index) => {
+    setFormData({
+      ...formData,
+      colors: formData.colors.filter((_, i) => i !== index),
     });
   };
 
@@ -349,26 +524,159 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
       
       formDataToSend.append("price[currency]", formData.price.currency || "USD");
 
-      // Add specifications - always send all fields
-      formDataToSend.append("specifications[motorPower]", (formData.specifications.motorPower || "").trim());
-      formDataToSend.append("specifications[batteryCapacity]", (formData.specifications.batteryCapacity || "").trim());
-      formDataToSend.append("specifications[brakes]", (formData.specifications.brakes || "").trim());
-      formDataToSend.append("specifications[foldable]", formData.specifications.foldable ? "true" : "false");
-      
-      // Numeric specification fields - send as numbers if valid, otherwise don't send
-      const rangeKm = parseFloat(formData.specifications.rangeKm);
-      if (!isNaN(rangeKm) && rangeKm >= 0) {
-        formDataToSend.append("specifications[rangeKm]", rangeKm);
+      // Add specifications - nested structure
+      // Details
+      if (formData.specifications.details.modelName) {
+        formDataToSend.append("specifications[details][modelName]", formData.specifications.details.modelName.trim());
+      }
+      if (formData.specifications.details.modelNumber) {
+        formDataToSend.append("specifications[details][modelNumber]", formData.specifications.details.modelNumber.trim());
+      }
+      const netWeight = parseFloat(formData.specifications.details.NetWeight);
+      if (!isNaN(netWeight) && netWeight >= 0) {
+        formDataToSend.append("specifications[details][NetWeight]", netWeight);
+      }
+      const payload = parseFloat(formData.specifications.details.Payload);
+      if (!isNaN(payload) && payload >= 0) {
+        formDataToSend.append("specifications[details][Payload]", payload);
       }
       
-      const weightKg = parseFloat(formData.specifications.weightKg);
-      if (!isNaN(weightKg) && weightKg >= 0) {
-        formDataToSend.append("specifications[weightKg]", weightKg);
+      // FrameSet
+      if (formData.specifications.FrameSet.Frame) {
+        formDataToSend.append("specifications[FrameSet][Frame]", formData.specifications.FrameSet.Frame.trim());
+      }
+      if (formData.specifications.FrameSet.Fork) {
+        formDataToSend.append("specifications[FrameSet][Fork]", formData.specifications.FrameSet.Fork.trim());
+      }
+      if (formData.specifications.FrameSet.Headset) {
+        formDataToSend.append("specifications[FrameSet][Headset]", formData.specifications.FrameSet.Headset.trim());
       }
       
-      const maxSpeedKmh = parseFloat(formData.specifications.maxSpeedKmh);
-      if (!isNaN(maxSpeedKmh) && maxSpeedKmh >= 0) {
-        formDataToSend.append("specifications[maxSpeedKmh]", maxSpeedKmh);
+      // E-System
+      if (formData.specifications["E-System"].driveUnit) {
+        formDataToSend.append("specifications[E-System][driveUnit]", formData.specifications["E-System"].driveUnit.trim());
+      }
+      if (formData.specifications["E-System"].battery) {
+        formDataToSend.append("specifications[E-System][battery]", formData.specifications["E-System"].battery.trim());
+      }
+      if (formData.specifications["E-System"].charger) {
+        formDataToSend.append("specifications[E-System][charger]", formData.specifications["E-System"].charger.trim());
+      }
+      if (formData.specifications["E-System"].display) {
+        formDataToSend.append("specifications[E-System][display]", formData.specifications["E-System"].display.trim());
+      }
+      if (formData.specifications["E-System"].throttle) {
+        formDataToSend.append("specifications[E-System][throttle]", formData.specifications["E-System"].throttle.trim());
+      }
+      
+      // DRIVETRAIN
+      if (formData.specifications.DRIVETRAIN["Rear Derailleur"]) {
+        formDataToSend.append("specifications[DRIVETRAIN][Rear Derailleur]", formData.specifications.DRIVETRAIN["Rear Derailleur"].trim());
+      }
+      if (formData.specifications.DRIVETRAIN.Shifters) {
+        formDataToSend.append("specifications[DRIVETRAIN][Shifters]", formData.specifications.DRIVETRAIN.Shifters.trim());
+      }
+      if (formData.specifications.DRIVETRAIN.Chain) {
+        formDataToSend.append("specifications[DRIVETRAIN][Chain]", formData.specifications.DRIVETRAIN.Chain.trim());
+      }
+      if (formData.specifications.DRIVETRAIN.Crank) {
+        formDataToSend.append("specifications[DRIVETRAIN][Crank]", formData.specifications.DRIVETRAIN.Crank.trim());
+      }
+      if (formData.specifications.DRIVETRAIN["Rear Cogs"]) {
+        formDataToSend.append("specifications[DRIVETRAIN][Rear Cogs]", formData.specifications.DRIVETRAIN["Rear Cogs"].trim());
+      }
+      if (formData.specifications.DRIVETRAIN.Sensor) {
+        formDataToSend.append("specifications[DRIVETRAIN][Sensor]", formData.specifications.DRIVETRAIN.Sensor.trim());
+      }
+      
+      // BRAKES
+      if (formData.specifications.BRAKES.Brakes) {
+        formDataToSend.append("specifications[BRAKES][Brakes]", formData.specifications.BRAKES.Brakes.trim());
+      }
+      if (formData.specifications.BRAKES["Brake Levers"]) {
+        formDataToSend.append("specifications[BRAKES][Brake Levers]", formData.specifications.BRAKES["Brake Levers"].trim());
+      }
+      
+      // Wheels
+      if (formData.specifications.Wheels["Front Hub"]) {
+        formDataToSend.append("specifications[Wheels][Front Hub]", formData.specifications.Wheels["Front Hub"].trim());
+      }
+      if (formData.specifications.Wheels["Rear Hub"]) {
+        formDataToSend.append("specifications[Wheels][Rear Hub]", formData.specifications.Wheels["Rear Hub"].trim());
+      }
+      if (formData.specifications.Wheels.Tires) {
+        formDataToSend.append("specifications[Wheels][Tires]", formData.specifications.Wheels.Tires.trim());
+      }
+      if (formData.specifications.Wheels.Rims) {
+        formDataToSend.append("specifications[Wheels][Rims]", formData.specifications.Wheels.Rims.trim());
+      }
+      if (formData.specifications.Wheels.Spokes) {
+        formDataToSend.append("specifications[Wheels][Spokes]", formData.specifications.Wheels.Spokes.trim());
+      }
+      
+      // Components
+      if (formData.specifications.Components.Handlebars) {
+        formDataToSend.append("specifications[Components][Handlebars]", formData.specifications.Components.Handlebars.trim());
+      }
+      if (formData.specifications.Components.Stem) {
+        formDataToSend.append("specifications[Components][Stem]", formData.specifications.Components.Stem.trim());
+      }
+      if (formData.specifications.Components.Grips) {
+        formDataToSend.append("specifications[Components][Grips]", formData.specifications.Components.Grips.trim());
+      }
+      if (formData.specifications.Components.Saddle) {
+        formDataToSend.append("specifications[Components][Saddle]", formData.specifications.Components.Saddle.trim());
+      }
+      if (formData.specifications.Components.Seatpost) {
+        formDataToSend.append("specifications[Components][Seatpost]", formData.specifications.Components.Seatpost.trim());
+      }
+      
+      // Frame Type
+      if (formData.specifications.frameType) {
+        formDataToSend.append("specifications[frameType]", formData.specifications.frameType);
+      }
+
+      // Add filter fields
+      if (formData.style) formDataToSend.append("style", formData.style);
+      if (formData.poster) formDataToSend.append("poster", formData.poster);
+      if (formData.drivetrain) formDataToSend.append("drivetrain", formData.drivetrain);
+      if (formData.electricAssistRange) formDataToSend.append("electricAssistRange", formData.electricAssistRange);
+      if (formData.payload) {
+        const payloadNum = parseFloat(formData.payload);
+        if (!isNaN(payloadNum) && payloadNum >= 0) {
+          formDataToSend.append("payload", payloadNum);
+        }
+      }
+      if (formData.suspension) formDataToSend.append("suspension", formData.suspension);
+      if (formData.weight) {
+        const weightNum = parseFloat(formData.weight);
+        if (!isNaN(weightNum) && weightNum >= 0) {
+          formDataToSend.append("weight", weightNum);
+        }
+      }
+      if (formData.tagline) formDataToSend.append("tagline", formData.tagline.trim());
+      
+      // Add riderHeight array
+      if (formData.riderHeight && formData.riderHeight.length > 0) {
+        formData.riderHeight.forEach((height, index) => {
+          if (height && height.trim() !== "") {
+            formDataToSend.append(`riderHeight[${index}]`, height.trim());
+          }
+        });
+      }
+      
+      // Add colors array with name and quantity
+      if (formData.colors && formData.colors.length > 0) {
+        formData.colors.forEach((color, index) => {
+          if (color && (typeof color === 'object' ? color.name : color)) {
+            const colorName = typeof color === 'object' ? color.name : color;
+            const colorQuantity = typeof color === 'object' ? (color.quantity || 0) : 0;
+            if (colorName && colorName.trim() !== "") {
+              formDataToSend.append(`colors[${index}][name]`, colorName.trim());
+              formDataToSend.append(`colors[${index}][quantity]`, Math.max(0, Math.floor(colorQuantity)));
+            }
+          }
+        });
       }
 
       // Add features - always send array (even if empty) to allow clearing during updates
@@ -381,21 +689,6 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
       }
       // If empty array, backend will handle it (no features sent = empty array)
 
-      // Add variants - always send array (even if empty) to allow clearing during updates
-      if (formData.variants && formData.variants.length > 0) {
-        formData.variants.forEach((variant, index) => {
-          if (variant && variant.variantId && variant.name && variant.price !== undefined) {
-            formDataToSend.append(`variants[${index}][variantId]`, variant.variantId);
-            formDataToSend.append(`variants[${index}][name]`, variant.name.trim());
-            const variantPrice = typeof variant.price === 'number' ? variant.price : parseFloat(variant.price);
-            if (!isNaN(variantPrice) && variantPrice >= 0) {
-              formDataToSend.append(`variants[${index}][price]`, variantPrice);
-            }
-          }
-        });
-      }
-      // If empty array, backend will handle it (no variants sent = empty array)
-
       // Add reviews - ensure valid numbers
       const ratingAverage = parseFloat(formData.reviews.ratingAverage) || 0;
       const ratingCount = parseInt(formData.reviews.ratingCount) || 0;
@@ -407,9 +700,6 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
       const quantity = parseInt(formData.quantity) || 0;
       formDataToSend.append("quantity", Math.max(0, quantity));
       formDataToSend.append("isListed", formData.isListed ? "true" : "false");
-      
-      // URL - always send (even if empty) to allow clearing during updates
-      formDataToSend.append("url", (formData.url || "").trim());
 
       // Add image files (only new files, existing images are kept on backend)
       imageFiles.forEach((file) => {
@@ -439,40 +729,88 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
       
       // Reset form only if creating new product
       if (!isEditing) {
-        setFormData({
-          name: "",
-          description: "",
-          category: "Electric Bike",
-          price: {
-            current: "",
-            original: "",
-            currency: "USD",
+      setFormData({
+        name: "",
+        description: "",
+        category: "Electric Bike",
+        price: {
+          current: "",
+          original: "",
+          currency: "USD",
+        },
+        specifications: {
+          details: {
+            modelName: "",
+            modelNumber: "",
+            NetWeight: "",
+            Payload: "",
           },
-          specifications: {
-            motorPower: "",
-            batteryCapacity: "",
-            rangeKm: "",
-            weightKg: "",
-            maxSpeedKmh: "",
-            brakes: "",
-            foldable: false,
+          FrameSet: {
+            Frame: "",
+            Fork: "",
+            Headset: "",
           },
-          features: [],
-          inStock: true,
-          quantity: 0,
-          isListed: true,
-          variants: [],
-          reviews: {
-            ratingAverage: 0,
-            ratingCount: 0,
+          "E-System": {
+            driveUnit: "",
+            battery: "",
+            charger: "",
+            display: "",
+            throttle: "",
           },
-          url: "",
-        });
+          DRIVETRAIN: {
+            "Rear Derailleur": "",
+            Shifters: "",
+            Chain: "",
+            Crank: "",
+            "Rear Cogs": "",
+            Sensor: "",
+          },
+          BRAKES: {
+            Brakes: "",
+            "Brake Levers": "",
+          },
+          Wheels: {
+            "Front Hub": "",
+            "Rear Hub": "",
+            Tires: "",
+            Rims: "",
+            Spokes: "",
+          },
+          Components: {
+            Handlebars: "",
+            Stem: "",
+            Grips: "",
+            Saddle: "",
+            Seatpost: "",
+          },
+          frameType: "",
+        },
+        // Filter fields
+        style: "",
+        poster: "",
+        drivetrain: "",
+        electricAssistRange: "",
+        payload: "",
+        riderHeight: [],
+        suspension: "",
+        colors: [],
+        weight: "",
+        tagline: "",
+        features: [],
+        inStock: true,
+        quantity: 0,
+        isListed: true,
+        reviews: {
+          ratingAverage: 0,
+          ratingCount: 0,
+        },
+      });
         setImageFiles([]);
-        setImagePreviews([]);
+      setImagePreviews([]);
         setExistingImages([]);
-        setFeatureInput("");
-        setVariantInput({ name: "", price: "" });
+      setFeatureInput("");
+      setRiderHeightInput("");
+      setColorInput({ name: "", quantity: "" });
       }
     } catch (err) {
       setError(
@@ -602,25 +940,309 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
           )}
         </div>
 
-        <div className="specifications-section">
-          <h3>Specifications (Optional)</h3>
+        <div className="filter-fields-section">
+          <h3>Filter Fields (Optional)</h3>
           <div className="form-row">
             <div className="admin-form-group">
-              <label>Motor Power</label>
+              <label>Riding Styles</label>
+              <select
+                name="style"
+                value={formData.style}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Riding Style</option>
+                <option value="Urban Commuting">Urban Commuting</option>
+                <option value="Off-road / Mountain Riding">Off-road / Mountain Riding</option>
+                <option value="Long-distance Touring">Long-distance Touring</option>
+                <option value="Leisure Riding / Daily Errands">Leisure Riding / Daily Errands</option>
+                <option value="Cargo & Delivery Use">Cargo & Delivery Use</option>
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label>Riding Posture</label>
+              <select
+                name="poster"
+                value={formData.poster}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Posture</option>
+                <option value="Upright">Upright</option>
+                <option value="Active">Active</option>
+                <option value="Sporty">Sporty</option>
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label>Drivetrain</label>
+              <select
+                name="drivetrain"
+                value={formData.drivetrain}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Drivetrain</option>
+                <option value="Chain">Chain</option>
+                <option value="Belt">Belt</option>
+              </select>
+            </div>
+            <div className="admin-form-group">
+              <label>Electric Assist Range</label>
+              <select
+                name="electricAssistRange"
+                value={formData.electricAssistRange}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Range</option>
+                <option value="43-60 mile">43-60 mile</option>
+                <option value=">60 mile">&gt;60 mile</option>
+              </select>
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Payload (lbs)</label>
+              <input
+                type="number"
+                name="payload"
+                value={formData.payload}
+                onChange={handleInputChange}
+                min="0"
+                step="1"
+                placeholder="e.g., 264"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Weight (lbs)</label>
+              <input
+                type="number"
+                name="weight"
+                value={formData.weight}
+                onChange={handleInputChange}
+                min="0"
+                step="0.1"
+                placeholder="e.g., 37.9"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Suspension</label>
+              <select
+                name="suspension"
+                value={formData.suspension}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Suspension</option>
+                <option value="Front Suspension">Front Suspension</option>
+                <option value="Full Suspension">Full Suspension</option>
+                <option value="No Suspension / Rigid Fork">No Suspension / Rigid Fork</option>
+              </select>
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Tagline</label>
               <input
                 type="text"
-                name="specifications.motorPower"
-                value={formData.specifications.motorPower}
+                name="tagline"
+                value={formData.tagline}
+                onChange={handleInputChange}
+                placeholder="Short descriptive text"
+              />
+            </div>
+          </div>
+          <div className="admin-form-group">
+            <label>Rider Height</label>
+            <div className="input-with-button">
+              <input
+                type="text"
+                value={riderHeightInput}
+                onChange={(e) => setRiderHeightInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddRiderHeight();
+                  }
+                }}
+                placeholder="e.g., 150cm(4'11&quot;) - 185cm(6'1&quot;)"
+              />
+              <button
+                type="button"
+                onClick={handleAddRiderHeight}
+                className="add-item-btn"
+              >
+                Add
+              </button>
+            </div>
+            {formData.riderHeight.length > 0 && (
+              <div className="items-list">
+                {formData.riderHeight.map((height, index) => (
+                  <span key={index} className="item-tag">
+                    {height}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveRiderHeight(index)}
+                      className="remove-item-btn"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="admin-form-group">
+            <label>Colors (with Stock Quantity)</label>
+            <div className="input-with-button">
+              <select
+                value={colorInput.name}
+                onChange={(e) => setColorInput({ ...colorInput, name: e.target.value })}
+                style={{ flex: 1 }}
+              >
+                <option value="">Select Color</option>
+                <option value="White">White</option>
+                <option value="Green">Green</option>
+                <option value="Blue">Blue</option>
+                <option value="Grey">Grey</option>
+                <option value="Black">Black</option>
+              </select>
+              <input
+                type="number"
+                value={colorInput.quantity}
+                onChange={(e) => setColorInput({ ...colorInput, quantity: e.target.value })}
+                placeholder="Qty"
+                min="0"
+                style={{ width: "80px" }}
+              />
+              <button
+                type="button"
+                onClick={handleAddColor}
+                className="add-item-btn"
+                disabled={!colorInput.name}
+              >
+                Add
+              </button>
+            </div>
+            {formData.colors.length > 0 && (
+              <div className="items-list">
+                {formData.colors.map((color, index) => (
+                  <span key={index} className="item-tag">
+                    {typeof color === 'object' ? `${color.name} (Qty: ${color.quantity})` : `${color} (Qty: 0)`}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveColor(index)}
+                      className="remove-item-btn"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="specifications-section">
+          <h3>Specifications (Optional)</h3>
+          
+          <h4>Details</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Model Name</label>
+              <input
+                type="text"
+                name="specifications.details.modelName"
+                value={formData.specifications.details.modelName}
+                onChange={handleInputChange}
+                placeholder="e.g., EcoWheel Pro"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Model Number</label>
+              <input
+                type="text"
+                name="specifications.details.modelNumber"
+                value={formData.specifications.details.modelNumber}
+                onChange={handleInputChange}
+                placeholder="e.g., EW-PRO-2024"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Net Weight</label>
+              <input
+                type="number"
+                name="specifications.details.NetWeight"
+                value={formData.specifications.details.NetWeight}
+                onChange={handleInputChange}
+                min="0"
+                step="0.1"
+                placeholder="e.g., 37.9"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Payload</label>
+              <input
+                type="number"
+                name="specifications.details.Payload"
+                value={formData.specifications.details.Payload}
+                onChange={handleInputChange}
+                min="0"
+                step="0.1"
+                placeholder="e.g., 264"
+              />
+            </div>
+          </div>
+
+          <h4>Frame Set</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Frame</label>
+              <input
+                type="text"
+                name="specifications.FrameSet.Frame"
+                value={formData.specifications.FrameSet.Frame}
+                onChange={handleInputChange}
+                placeholder="Frame specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Fork</label>
+              <input
+                type="text"
+                name="specifications.FrameSet.Fork"
+                value={formData.specifications.FrameSet.Fork}
+                onChange={handleInputChange}
+                placeholder="Fork specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Headset</label>
+              <input
+                type="text"
+                name="specifications.FrameSet.Headset"
+                value={formData.specifications.FrameSet.Headset}
+                onChange={handleInputChange}
+                placeholder="Headset specification"
+              />
+            </div>
+          </div>
+
+          <h4>E-System</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Drive Unit</label>
+              <input
+                type="text"
+                name="specifications.E-System.driveUnit"
+                value={formData.specifications["E-System"].driveUnit}
                 onChange={handleInputChange}
                 placeholder="e.g., 750W High-Torque"
               />
             </div>
             <div className="admin-form-group">
-              <label>Battery Capacity</label>
+              <label>Battery</label>
               <input
                 type="text"
-                name="specifications.batteryCapacity"
-                value={formData.specifications.batteryCapacity}
+                name="specifications.E-System.battery"
+                value={formData.specifications["E-System"].battery}
                 onChange={handleInputChange}
                 placeholder="e.g., 48V 696Wh"
               />
@@ -628,64 +1250,257 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
           </div>
           <div className="form-row">
             <div className="admin-form-group">
-              <label>Range (km)</label>
+              <label>Charger</label>
               <input
-                type="number"
-                name="specifications.rangeKm"
-                value={formData.specifications.rangeKm}
+                type="text"
+                name="specifications.E-System.charger"
+                value={formData.specifications["E-System"].charger}
                 onChange={handleInputChange}
-                min="0"
-                step="0.1"
-                placeholder="400"
+                placeholder="Charger specification"
               />
             </div>
             <div className="admin-form-group">
-              <label>Max Speed (km/h)</label>
+              <label>Display</label>
               <input
-                type="number"
-                name="specifications.maxSpeedKmh"
-                value={formData.specifications.maxSpeedKmh}
+                type="text"
+                name="specifications.E-System.display"
+                value={formData.specifications["E-System"].display}
                 onChange={handleInputChange}
-                min="0"
-                step="0.1"
-                placeholder="45"
+                placeholder="Display specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Throttle</label>
+              <input
+                type="text"
+                name="specifications.E-System.throttle"
+                value={formData.specifications["E-System"].throttle}
+                onChange={handleInputChange}
+                placeholder="Throttle specification"
+              />
+            </div>
+          </div>
+
+          <h4>Drivetrain</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Rear Derailleur</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Rear Derailleur"
+                value={formData.specifications.DRIVETRAIN["Rear Derailleur"]}
+                onChange={handleInputChange}
+                placeholder="Rear derailleur specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Shifters</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Shifters"
+                value={formData.specifications.DRIVETRAIN.Shifters}
+                onChange={handleInputChange}
+                placeholder="Shifters specification"
               />
             </div>
           </div>
           <div className="form-row">
             <div className="admin-form-group">
+              <label>Chain</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Chain"
+                value={formData.specifications.DRIVETRAIN.Chain}
+                onChange={handleInputChange}
+                placeholder="Chain specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Crank</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Crank"
+                value={formData.specifications.DRIVETRAIN.Crank}
+                onChange={handleInputChange}
+                placeholder="Crank specification"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Rear Cogs</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Rear Cogs"
+                value={formData.specifications.DRIVETRAIN["Rear Cogs"]}
+                onChange={handleInputChange}
+                placeholder="Rear cogs specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Sensor</label>
+              <input
+                type="text"
+                name="specifications.DRIVETRAIN.Sensor"
+                value={formData.specifications.DRIVETRAIN.Sensor}
+                onChange={handleInputChange}
+                placeholder="Sensor specification"
+              />
+            </div>
+          </div>
+
+          <h4>Brakes</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
               <label>Brakes</label>
               <input
                 type="text"
-                name="specifications.brakes"
-                value={formData.specifications.brakes}
+                name="specifications.BRAKES.Brakes"
+                value={formData.specifications.BRAKES.Brakes}
                 onChange={handleInputChange}
                 placeholder="e.g., 4-Piston Hydraulic Disc"
               />
             </div>
             <div className="admin-form-group">
-              <label>Weight (kg)</label>
+              <label>Brake Levers</label>
               <input
-                type="number"
-                name="specifications.weightKg"
-                value={formData.specifications.weightKg}
+                type="text"
+                name="specifications.BRAKES.Brake Levers"
+                value={formData.specifications.BRAKES["Brake Levers"]}
                 onChange={handleInputChange}
-                min="0"
-                step="0.1"
-                placeholder="37.9"
+                placeholder="Brake levers specification"
               />
             </div>
           </div>
-          <div className="admin-form-group">
-            <label className="checkbox-label">
+
+          <h4>Wheels</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Front Hub</label>
               <input
-                type="checkbox"
-                name="specifications.foldable"
-                checked={formData.specifications.foldable}
+                type="text"
+                name="specifications.Wheels.Front Hub"
+                value={formData.specifications.Wheels["Front Hub"]}
                 onChange={handleInputChange}
+                placeholder="Front hub specification"
               />
-              Foldable
-            </label>
+            </div>
+            <div className="admin-form-group">
+              <label>Rear Hub</label>
+              <input
+                type="text"
+                name="specifications.Wheels.Rear Hub"
+                value={formData.specifications.Wheels["Rear Hub"]}
+                onChange={handleInputChange}
+                placeholder="Rear hub specification"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Tires</label>
+              <input
+                type="text"
+                name="specifications.Wheels.Tires"
+                value={formData.specifications.Wheels.Tires}
+                onChange={handleInputChange}
+                placeholder="Tires specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Rims</label>
+              <input
+                type="text"
+                name="specifications.Wheels.Rims"
+                value={formData.specifications.Wheels.Rims}
+                onChange={handleInputChange}
+                placeholder="Rims specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Spokes</label>
+              <input
+                type="text"
+                name="specifications.Wheels.Spokes"
+                value={formData.specifications.Wheels.Spokes}
+                onChange={handleInputChange}
+                placeholder="Spokes specification"
+              />
+            </div>
+          </div>
+
+          <h4>Components</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Handlebars</label>
+              <input
+                type="text"
+                name="specifications.Components.Handlebars"
+                value={formData.specifications.Components.Handlebars}
+                onChange={handleInputChange}
+                placeholder="Handlebars specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Stem</label>
+              <input
+                type="text"
+                name="specifications.Components.Stem"
+                value={formData.specifications.Components.Stem}
+                onChange={handleInputChange}
+                placeholder="Stem specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Grips</label>
+              <input
+                type="text"
+                name="specifications.Components.Grips"
+                value={formData.specifications.Components.Grips}
+                onChange={handleInputChange}
+                placeholder="Grips specification"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Saddle</label>
+              <input
+                type="text"
+                name="specifications.Components.Saddle"
+                value={formData.specifications.Components.Saddle}
+                onChange={handleInputChange}
+                placeholder="Saddle specification"
+              />
+            </div>
+            <div className="admin-form-group">
+              <label>Seatpost</label>
+              <input
+                type="text"
+                name="specifications.Components.Seatpost"
+                value={formData.specifications.Components.Seatpost}
+                onChange={handleInputChange}
+                placeholder="Seatpost specification"
+              />
+            </div>
+          </div>
+
+          <h4>Frame Type</h4>
+          <div className="form-row">
+            <div className="admin-form-group">
+              <label>Frame Type</label>
+              <select
+                name="specifications.frameType"
+                value={formData.specifications.frameType}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Frame Type</option>
+                <option value="Foldable">Foldable</option>
+                <option value="Low step">Low step</option>
+                <option value="Mid step">Mid step</option>
+                <option value="High step">High step</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -729,66 +1544,6 @@ const AddProduct = ({ product, onSuccess, onCancel }) => {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="variants-section">
-          <h3>Variants (Optional)</h3>
-          <div className="admin-form-group">
-            <div className="input-with-button">
-              <input
-                type="text"
-                value={variantInput.name}
-                onChange={(e) => setVariantInput({ ...variantInput, name: e.target.value })}
-                placeholder="Variant name (e.g., Red, Large)"
-                style={{ flex: 1 }}
-              />
-              <input
-                type="number"
-                value={variantInput.price}
-                onChange={(e) => setVariantInput({ ...variantInput, price: e.target.value })}
-                placeholder="Price"
-                min="0"
-                step="0.01"
-                style={{ width: "120px" }}
-              />
-              <button
-                type="button"
-                onClick={handleAddVariant}
-                className="add-item-btn"
-              >
-                Add
-              </button>
-            </div>
-            {formData.variants.length > 0 && (
-              <div className="items-list">
-                {formData.variants.map((variant, index) => (
-                  <span key={index} className="item-tag">
-                    {variant.name} - ${variant.price.toFixed(2)}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveVariant(index)}
-                      className="remove-item-btn"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="admin-form-group">
-            <label>Product URL</label>
-            <input
-              type="text"
-              name="url"
-              value={formData.url}
-              onChange={handleInputChange}
-              placeholder="/products/product-id"
-            />
           </div>
         </div>
 
