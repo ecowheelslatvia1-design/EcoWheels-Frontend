@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { getCurrencySymbol } from "../../utils/currencyFormatter";
 import "./FilterSidebar.css";
 
-const FilterSidebar = ({ filters, onFilterChange, activeFiltersCount, onClearFilters, total, isOpen, onClose }) => {
+const FilterSidebar = ({ filters, onFilterChange, activeFiltersCount, onClearFilters, total, isOpen, onClose, currency = "USD" }) => {
   const [expandedSections, setExpandedSections] = useState({
     availability: true,
     ridingStyles: true,
@@ -440,7 +441,7 @@ const FilterSidebar = ({ filters, onFilterChange, activeFiltersCount, onClearFil
             <div className="price-input-group">
               <label className="price-input-label">Min</label>
               <div className="price-input-wrapper">
-                <span className="price-currency">$</span>
+                <span className="price-currency">{getCurrencySymbol(currency)}</span>
                 <input
                   type="number"
                   min="0"
@@ -455,7 +456,7 @@ const FilterSidebar = ({ filters, onFilterChange, activeFiltersCount, onClearFil
             <div className="price-input-group">
               <label className="price-input-label">Max</label>
               <div className="price-input-wrapper">
-                <span className="price-currency">$</span>
+                <span className="price-currency">{getCurrencySymbol(currency)}</span>
                 <input
                   type="number"
                   min={filters.priceMin + 1}

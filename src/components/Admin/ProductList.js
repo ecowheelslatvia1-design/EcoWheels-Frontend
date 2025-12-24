@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { productAPI, adminAPI } from "../../services/api";
+import { formatPrice } from "../../utils/currencyFormatter";
 import "./ProductList.css";
 
 const ProductList = ({ onEdit, onRefresh }) => {
@@ -170,7 +171,7 @@ const ProductList = ({ onEdit, onRefresh }) => {
                     </td>
                     <td className="product-name">{product.name}</td>
                     <td>{product.category}</td>
-                    <td>${product.price?.current || 0}</td>
+                    <td>{formatPrice(product.price?.current, product.price?.currency)}</td>
                     <td>{product.quantity || 0}</td>
                     <td>
                       <span

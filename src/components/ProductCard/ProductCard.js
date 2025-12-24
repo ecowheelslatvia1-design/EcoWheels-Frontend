@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { formatPrice } from "../../utils/currencyFormatter";
 import "./ProductCard.css";
 
 const ProductCard = ({ product }) => {
@@ -28,8 +29,8 @@ const ProductCard = ({ product }) => {
       </div>
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
-        {product.description && (
-          <p className="product-description">{product.description}</p>
+        {product.tagline && (
+          <p className="product-description">{product.tagline}</p>
         )}
         {product.reviews && product.reviews.ratingCount > 0 && (
           <div className="product-rating">
@@ -40,15 +41,15 @@ const ProductCard = ({ product }) => {
           {hasSale ? (
             <>
               <span className="product-price-sale">
-                ${product.price.current.toFixed(2)}
+                {formatPrice(product.price.current, product.price?.currency)}
               </span>
               <span className="product-price-original">
-                ${product.price.original.toFixed(2)}
+                {formatPrice(product.price.original, product.price?.currency)}
               </span>
             </>
           ) : (
             <span className="product-price">
-              ${product.price?.current?.toFixed(2) || "0.00"}
+              {formatPrice(product.price?.current, product.price?.currency)}
             </span>
           )}
         </div>

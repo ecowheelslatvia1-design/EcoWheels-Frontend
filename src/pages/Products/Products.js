@@ -8,6 +8,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("featured");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -63,7 +64,7 @@ const Products = () => {
       setLoading(true);
       const params = {
         page: currentPage,
-        limit: 12,
+        limit: 6,
         sort: sortBy,
       };
 
@@ -96,6 +97,7 @@ const Products = () => {
       const response = await productAPI.getProducts(params);
       setProducts(response.data.products || []);
       setTotal(response.data.total || 0);
+      setTotalPages(response.data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -187,6 +189,7 @@ const Products = () => {
             products={products}
             loading={loading}
             total={total}
+            totalPages={totalPages}
             sortBy={sortBy}
             onSortChange={handleSortChange}
             currentPage={currentPage}

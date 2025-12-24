@@ -4,6 +4,7 @@ import { useCart } from "../../context/CartContext";
 import Loading from "../../components/Loading/Loading";
 import Message from "../../components/Message/Message";
 import { Link } from "react-router-dom";
+import { formatPrice, getCurrencySymbol } from "../../utils/currencyFormatter";
 import "./CartPage.css";
 
 const CartPage = () => {
@@ -57,6 +58,10 @@ const CartPage = () => {
   };
 
   const total = getCartTotal();
+  // Get currency from first item, or default to USD
+  const cartCurrency = cart.items.length > 0 
+    ? cart.items[0].product.price?.currency 
+    : "USD";
 
   return (
     <div className="cart-page">
@@ -91,7 +96,7 @@ const CartPage = () => {
                   <p className="cart-item-description">{item.product.description}</p>
                 )}
                 <p className="cart-item-price">
-                  ${item.product.price?.current?.toFixed(2) || "0.00"}
+                  {formatPrice(item.product.price?.current, item.product.price?.currency)}
                 </p>
               </div>
 
@@ -115,10 +120,10 @@ const CartPage = () => {
               </div>
 
               <div className="cart-item-total">
-                $
-                {(
-                  (item.product.price?.current || 0) * item.quantity
-                ).toFixed(2)}
+                {formatPrice(
+                  (item.product.price?.current || 0) * item.quantity,
+                  item.product.price?.currency
+                )}
               </div>
 
               <button
@@ -135,7 +140,7 @@ const CartPage = () => {
           <h2>Order Summary</h2>
           <div className="summary-row">
             <span>Subtotal:</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatPrice(total, cartCurrency)}</span>
           </div>
           <div className="summary-row">
             <span>Shipping:</span>
@@ -143,7 +148,7 @@ const CartPage = () => {
           </div>
           <div className="summary-row total">
             <span>Total:</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatPrice(total, cartCurrency)}</span>
           </div>
           <button className="checkout-btn" disabled>
             Proceed to Checkout (Coming Soon)

@@ -6,6 +6,7 @@ import { productAPI } from "../../services/api";
 import ProductCard from "../Products/ProductCard";
 import Loading from "../Loading/Loading";
 import Message from "../Message/Message";
+import { formatPrice, getCurrencySymbol } from "../../utils/currencyFormatter";
 import "./ProductDetails.css";
 
 const ProductDetails = ({ product, loading }) => {
@@ -129,12 +130,12 @@ const ProductDetails = ({ product, loading }) => {
 
   const handleBuyNow = () => {
     const productName = encodeURIComponent(product.name);
-    const productPrice = product.price?.current?.toFixed(2) || "0.00";
+    const productPrice = formatPrice(product.price?.current, product.price?.currency);
     const message = encodeURIComponent(
       `Hello! I'm interested in purchasing:\n\n` +
       `Product: ${product.name}\n` +
       `Quantity: ${quantity}\n` +
-      `Price: $${productPrice}\n\n` +
+      `Price: ${productPrice}\n\n` +
       `Please let me know how to proceed with the purchase.`
     );
     const whatsappUrl = `https://wa.me/37126308147?text=${message}`;
@@ -238,6 +239,10 @@ const ProductDetails = ({ product, loading }) => {
             </div>
           )}
 
+          {product.tagline && (
+            <p className="product-tagline">{product.tagline}</p>
+          )}
+
           {product.description && (
             <p className="product-description-text">{product.description}</p>
           )}
@@ -247,18 +252,18 @@ const ProductDetails = ({ product, loading }) => {
               {hasSale ? (
                 <>
                   <span className="product-price-detail-sale">
-                    ${product.price.current.toFixed(2)}
+                    {formatPrice(product.price.current, product.price?.currency)}
                   </span>
                   <span className="product-price-detail-original" style={{ textDecoration: 'line-through' }}>
-                    ${product.price.original.toFixed(2)}
+                    {formatPrice(product.price.original, product.price?.currency)}
                   </span>
                   {discountAmount > 0 && (
-                    <span className="savings-text">Save ${discountAmount.toFixed(2)}</span>
+                    <span className="savings-text">Save {getCurrencySymbol(product.price?.currency)}{discountAmount.toFixed(2)}</span>
                   )}
                 </>
               ) : (
                 <span className="product-price-detail">
-                  ${product.price?.current?.toFixed(2) || "0.00"}
+                  {formatPrice(product.price?.current, product.price?.currency)}
                 </span>
               )}
             </div>

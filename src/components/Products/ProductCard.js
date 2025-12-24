@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatPrice, getCurrencySymbol } from "../../utils/currencyFormatter";
 import "./ProductCard.css";
 
 const ProductCard = ({ product }) => {
@@ -57,26 +58,26 @@ const ProductCard = ({ product }) => {
         )}
         {discountAmount > 0 && (
           <div className="discount-badge">
-            ${discountAmount} OFF
+            {getCurrencySymbol(product.price?.currency)}{discountAmount} OFF
           </div>
         )}
       </div>
       
       <div className="product-info-new">
         <h3 className="product-name-new">{product.name}</h3>
-        {(product.description || product.tagline) && (
+        {product.tagline && (
           <p className="product-description">
-            {product.description || product.tagline}
+            {product.tagline}
           </p>
         )}
         
         <div className="product-price-section">
           <span className="product-price-current">
-            ${product.price?.current?.toFixed(2) || "0.00"}
+            {formatPrice(product.price?.current, product.price?.currency)}
           </span>
           {hasOriginalPrice && (
             <span className="product-price-original">
-              ${product.price.original.toFixed(2)}
+              {formatPrice(product.price.original, product.price?.currency)}
             </span>
           )}
         </div>
