@@ -117,12 +117,26 @@
   color: #333;
 }
 
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
 .checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
   font-weight: normal;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+  background: #f5f5f5;
 }
 
 .checkbox-label input[type="checkbox"] {

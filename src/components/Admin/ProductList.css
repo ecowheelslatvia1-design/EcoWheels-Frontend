@@ -177,7 +177,9 @@
 }
 
 .btn-edit,
-.btn-delete {
+.btn-delete,
+.btn-list,
+.btn-unlist {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -202,6 +204,24 @@
 
 .btn-delete:hover {
   background: #d32f2f;
+}
+
+.btn-list {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.btn-list:hover {
+  background: #1b5e20;
+}
+
+.btn-unlist {
+  background: #e65100;
+  color: #fff;
+}
+
+.btn-unlist:hover {
+  background: #bf360c;
 }
 
 .delete-confirm {

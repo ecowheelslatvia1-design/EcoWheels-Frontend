@@ -59,6 +59,11 @@ const Products = () => {
     fetchProducts();
   }, [filters, currentPage, sortBy]);
 
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -156,6 +161,12 @@ const Products = () => {
     setCurrentPage(1);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="products-page-container">
       <div className="products-layout">
@@ -193,7 +204,7 @@ const Products = () => {
             sortBy={sortBy}
             onSortChange={handleSortChange}
             currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
           />
         </div>
       </div>

@@ -1,11 +1,16 @@
 import React from "react";
+import BicycleLoader from "./BicycleLoader";
 import "./Loading.css";
 
-const Loading = () => {
+const Loading = ({ message, useBicycle = true }) => {
+  if (useBicycle) {
+    return <BicycleLoader message={message} />;
+  }
+
   return (
     <div className="loading-container">
       <div className="spinner"></div>
-      <p>Loading...</p>
+      <p>{message || "Loading..."}</p>
     </div>
   );
 };
