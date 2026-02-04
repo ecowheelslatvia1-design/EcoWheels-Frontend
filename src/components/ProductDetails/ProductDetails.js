@@ -165,6 +165,8 @@ const ProductDetails = ({ product, loading }) => {
         <span className="breadcrumb-current">{product.name}</span>
       </nav>
 
+      <div id="eitem-application-placement"></div>
+
       <div className="product-details-container">
         <div className="product-images">
           {product.images && product.images.length > 1 && (
@@ -277,7 +279,7 @@ const ProductDetails = ({ product, loading }) => {
             </div>
           )}
 
-          <div className="product-actions-buttons">
+          <div className="product-actions-buttons" style={{ display: 'flex', flexDirection: 'column'}}>
             {/* <button
               className="add-to-cart-btn"
               onClick={handleAddToCart}
@@ -292,6 +294,7 @@ const ProductDetails = ({ product, loading }) => {
             >
               BUY NOW
             </button>
+            <div id="eitem-button-placement">test</div>
           </div>
 
           <div className="expandable-sections">
