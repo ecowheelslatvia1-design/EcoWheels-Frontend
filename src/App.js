@@ -21,6 +21,7 @@ import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminRoute from "./components/Admin/AdminRoute";
 import "./App.css";
+import Contact from "./pages/Contact/Contact";
 
 // Component to connect API loading to context
 const AppContent = () => {
@@ -62,6 +63,7 @@ const AppContent = () => {
                   <Route path="/about" element={<About />} />
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/blog" element={<Blog />} />
+                  <Route path="/contact" element={<Contact />} />
                 </Routes>
               </main>
               <Footer />
