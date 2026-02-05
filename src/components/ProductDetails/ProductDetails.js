@@ -294,7 +294,7 @@ const ProductDetails = ({ product, loading }) => {
             >
               BUY NOW
             </button>
-            <div id="eitem-button-placement">test</div>
+            <div id="eitem-button-placement"></div>
           </div>
 
           <div className="expandable-sections">
