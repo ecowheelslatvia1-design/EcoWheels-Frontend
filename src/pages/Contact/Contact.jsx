@@ -63,9 +63,9 @@ const Contact = () => {
         }}
       >
         <div className="about-hero-content">
-          <h1 className="about-title">Contact Us</h1>
+          <h1 className="about-title">Service Bike</h1>
           <p className="about-subtitle">
-            Questions? Feel free to reach out!
+            Need to service your bike? Feel free to reach out!
           </p>
         </div>
       </section>

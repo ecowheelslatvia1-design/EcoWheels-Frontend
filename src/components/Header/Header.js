@@ -201,10 +201,10 @@ const Header = () => {
             Products
           </Link>
           <Link
-            to="/contact"
-            className={`nav-link ${isActive("/contact") ? "active" : ""}`}
+            to="/service-bike"
+            className={`nav-link ${isActive("/service-bike") ? "active" : ""}`}
           >
-            Contact Us
+            Service Bike
           </Link>
           {/* <Link
             to="/blog"
@@ -317,13 +317,13 @@ const Header = () => {
                   Products
                 </Link>
                 <Link
-                  to="/contact"
+                  to="/service-bike"
                   className={`mobile-nav-link ${
-                    isActive("/contact") ? "active" : ""
+                    isActive("/service-bike") ? "active" : ""
                   }`}
                   onClick={handleLinkClick}
                 >
-                  Contact Us
+                  Service Bike
                 </Link>
                 {/* <Link
                   to="/blog"
