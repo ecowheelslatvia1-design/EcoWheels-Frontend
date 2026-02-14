@@ -153,7 +153,7 @@ const Home = () => {
 
           <div 
             className="pick-ride-panel"
-            onClick={() => navigate("/products")}
+            onClick={() => navigate("https://eu.fiido.com/pages/warranty-policy")}
           >
             <div className="panel-image">
               <img 
