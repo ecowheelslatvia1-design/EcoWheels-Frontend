@@ -151,9 +151,9 @@ const Home = () => {
             </div>
           </div>
 
-          <div 
+          <div
             className="pick-ride-panel"
-            onClick={() => navigate("https://eu.fiido.com/pages/warranty-policy")}
+            onClick={() => navigate("/warranty-support")}
           >
             <div className="panel-image">
               <img 
