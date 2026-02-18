@@ -128,7 +128,7 @@ const Footer = () => {
         <p className="footer-copyright">© 2025 Biklab All rights reserved.</p>
         <div className="footer-links">
           <Link to="/">FAQ</Link>
-          <Link to="/">Term of Service</Link>
+          <Link to="/terms-and-conditions">Term of Service</Link>
           <Link to="/">Privacy Policy</Link>
         </div>
       </div>
